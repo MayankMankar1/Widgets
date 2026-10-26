@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder icon: four widget tiles inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF9F45"
+        android:pathData="M38,32h12a6,6 0,0 1,6 6v12a6,6 0,0 1,-6 6h-12a6,6 0,0 1,-6 -6v-12a6,6 0,0 1,6 -6z" />
+    <path
+        android:fillColor="#F2F1EC"
+        android:pathData="M64,32h6a6,6 0,0 1,6 6v12a6,6 0,0 1,-6 6h-6a6,6 0,0 1,-6 -6v-12a6,6 0,0 1,6 -6z M38,58h32a6,6 0,0 1,6 6v6a6,6 0,0 1,-6 6h-32a6,6 0,0 1,-6 -6v-6a6,6 0,0 1,6 -6z" />
+</vector>

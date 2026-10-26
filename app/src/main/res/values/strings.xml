@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">100Widgets</string>
+
+    <string name="tab_home">Home</string>
+    <string name="tab_widgets">Widgets</string>
+    <string name="tab_wallpapers">Wallpapers</string>
+    <string name="tab_settings">Settings</string>
+
+    <string name="action_back">Back</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+
+    <string name="home_subtitle">Pick a scene, set its wallpaper, add its widgets.</string>
+    <string name="home_scenes">Scenes</string>
+    <string name="home_your_widgets">Your widgets</string>
+    <string name="home_no_widgets">No widgets on your home screen yet. Open a scene or the Widgets tab to add one.</string>
+    <string name="home_tip_title">Widgets not updating?</string>
+    <string name="home_tip_body">Some phones pause background work to save battery. In your phone\'s battery settings, let 100Widgets run in the background.</string>
+    <plurals name="home_design_count">
+        <item quantity="one">%1$d design</item>
+        <item quantity="other">%1$d designs</item>
+    </plurals>
+
+    <string name="theme_horizon_tagline">Frosted glass over mountain light</string>
+    <string name="theme_noir_tagline">Black on grey, colour only in icons</string>
+    <string name="theme_bauhaus_tagline">Watch faces in black, grey and orange</string>
+    <string name="theme_comic_tagline">Inked panels and sound effects</string>
+
+    <string name="widgets_filter_all">All</string>
+
+    <string name="detail_not_found">This design isn\'t available.</string>
+    <string name="detail_add">Add to home screen</string>
+    <string name="detail_save">Save</string>
+    <string name="detail_saved">Saved</string>
+    <string name="detail_note_live">The clock runs live on your home screen, with no background updates.</string>
+    <string name="detail_note_battery">Battery level refreshes every 15 to 60 minutes (change it in Settings).</string>
+    <string name="detail_note_daily">Content changes once a day.</string>
+    <string name="detail_pin_requested_title">Check your home screen</string>
+    <string name="detail_pin_requested_body">Confirm the \"Add widget\" prompt, then place the widget where you like.</string>
+    <string name="detail_pin_manual_title">Add it from your home screen</string>
+    <string name="detail_pin_manual_body">Your launcher can\'t add widgets from apps. Long-press an empty spot on your home screen, tap Widgets, find 100Widgets and drag this size onto the screen. Then pick this design.</string>
+
+    <string name="wallpapers_subtitle">Theme wallpapers are built in. More will arrive online.</string>
+    <string name="wallpapers_set_title">Set %1$s as</string>
+    <string name="wallpapers_target_home">Home screen</string>
+    <string name="wallpapers_target_lock">Lock screen</string>
+    <string name="wallpapers_target_both">Both</string>
+    <string name="wallpapers_done">Wallpaper set</string>
+    <string name="wallpapers_failed">Couldn\'t set the wallpaper</string>
+
+    <string name="settings_clock_format">Clock format</string>
+    <string name="settings_clock_system">Follow phone setting</string>
+    <string name="settings_clock_12">12-hour</string>
+    <string name="settings_clock_24">24-hour</string>
+    <string name="settings_refresh">Widget updates</string>
+    <string name="settings_refresh_body">How often battery and other data refresh. Clocks always run live.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="settings_battery_title">Keep widgets updating</string>
+    <string name="settings_battery_body">If widgets stop refreshing, open your phone\'s battery settings and set 100Widgets to unrestricted.</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version %1$s</string>
+
+    <string name="configure_title">Choose a design</string>
+    <string name="configure_subtitle">Designs for a %1$s widget</string>
+    <string name="configure_empty">No designs for this size yet. Remove this widget and try another size.</string>
+</resources>

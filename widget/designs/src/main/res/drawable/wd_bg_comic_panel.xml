@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Canvas .pan: cream panel, 3px ink border, 4px hard offset shadow. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="4dp"
+        android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#171311" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+    <item
+        android:bottom="4dp"
+        android:right="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FBF4E2" />
+            <stroke
+                android:width="3dp"
+                android:color="#171311" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+</layer-list>

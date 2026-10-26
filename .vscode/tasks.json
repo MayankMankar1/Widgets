@@ -1,0 +1,45 @@
+{
+  // Phone tasks for working in VS Code (Terminal → Run Task, or Ctrl+Shift+B to
+  // install and open). Needs a phone connected over adb (USB or wireless debugging)
+  // and scrcpy on PATH. See README §17, "Working in VS Code".
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Mirror phone",
+      "detail": "Shows the connected phone in its own window (scrcpy). Snap it beside VS Code.",
+      "type": "process",
+      "command": "scrcpy",
+      "args": ["--window-title=100Widgets phone", "--no-audio", "--stay-awake"],
+      "options": {
+        // Use the SDK's adb so scrcpy and Gradle share one adb server.
+        "env": { "ADB": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools\\adb.exe" }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent", "panel": "dedicated" }
+    },
+    {
+      "label": "Install on phone",
+      "detail": "Builds the debug app and installs it on the connected phone.",
+      "type": "shell",
+      "command": ".\\gradlew.bat installDebug",
+      "options": {
+        // Android Studio's bundled JDK on this machine; change it if yours is elsewhere.
+        "env": { "JAVA_HOME": "E:\\Android\\jbr" },
+        "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] }
+      },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "Install and open on phone",
+      "detail": "Runs Install on phone, then starts the app.",
+      "type": "process",
+      "command": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools\\adb.exe",
+      "args": ["shell", "am", "start", "-n", "com.hundredwidgets.app.debug/com.hundredwidgets.app.MainActivity"],
+      "dependsOn": "Install on phone",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}

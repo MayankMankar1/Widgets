@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="we_label_1x1">100Widgets 1×1</string>
+    <string name="we_label_1x2">100Widgets 1×2</string>
+    <string name="we_label_2x1">100Widgets 2×1</string>
+    <string name="we_label_2x2">100Widgets 2×2</string>
+    <string name="we_label_4x1">100Widgets 4×1</string>
+    <string name="we_label_4x2">100Widgets 4×2</string>
+    <string name="we_description">Themed widgets. Pick a design after you place it.</string>
+    <string name="we_tap_to_choose">Tap to choose a design</string>
+    <string name="we_error">Couldn\'t draw this widget</string>
+</resources>

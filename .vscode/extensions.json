@@ -1,0 +1,6 @@
+{
+  // JetBrains' official Kotlin language server. Don't run a second Kotlin server
+  // alongside it: fwcd.kotlin gives duplicate errors and uses another JVM's memory.
+  "recommendations": ["jetbrains.kotlin-server"],
+  "unwantedRecommendations": ["fwcd.kotlin"]
+}

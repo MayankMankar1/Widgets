@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wd_horizon_clock_quote">Clock &amp; quote</string>
+    <string name="wd_noir_condensed_clock">Condensed clock</string>
+    <string name="wd_noir_battery">Battery</string>
+    <string name="wd_bauhaus_white_disc">Analog on white disc</string>
+    <string name="wd_comic_calendar_page">Calendar page</string>
+
+    <string name="wd_battery_label">Battery</string>
+    <string name="wd_battery_charging">Charging</string>
+</resources>
