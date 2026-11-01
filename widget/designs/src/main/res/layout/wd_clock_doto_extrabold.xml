@@ -3,10 +3,7 @@
     android:id="@+id/wd_text_clock"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:fontFamily="sans-serif-condensed"
+    android:fontFamily="@font/wd_doto_extrabold"
     android:includeFontPadding="false"
-    android:letterSpacing="0.06"
     android:maxLines="1"
-    android:textAllCaps="true"
-    android:textColor="@android:color/white"
-    android:textStyle="bold" />
+    android:textColor="@android:color/white" />

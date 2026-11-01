@@ -8,8 +8,10 @@
     <string name="tab_settings">Settings</string>
 
     <string name="action_back">Back</string>
-    <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_done">Done</string>
+    <string name="action_open">Open</string>
 
     <string name="home_subtitle">Pick a scene, set its wallpaper, add its widgets.</string>
     <string name="home_scenes">Scenes</string>
@@ -24,6 +26,8 @@
 
     <string name="theme_horizon_tagline">Frosted glass over mountain light</string>
     <string name="theme_noir_tagline">Black on grey, colour only in icons</string>
+    <string name="theme_paper_tagline">Black and white shapes, one accent each</string>
+    <string name="theme_signal_tagline">Dots, pills and signal red</string>
     <string name="theme_bauhaus_tagline">Watch faces in black, grey and orange</string>
     <string name="theme_comic_tagline">Inked panels and sound effects</string>
 
@@ -31,18 +35,23 @@
 
     <string name="detail_not_found">This design isn\'t available.</string>
     <string name="detail_add">Add to home screen</string>
-    <string name="detail_save">Save</string>
-    <string name="detail_saved">Saved</string>
     <string name="detail_note_live">The clock runs live on your home screen, with no background updates.</string>
     <string name="detail_note_battery">Battery level refreshes every 15 to 60 minutes (change it in Settings).</string>
     <string name="detail_note_daily">Content changes once a day.</string>
+    <string name="detail_favorite_add">Save to favourites</string>
+    <string name="detail_favorite_remove">Remove from favourites</string>
+    <string name="detail_sheet_title">Add to your home screen</string>
+    <string name="detail_sheet_step_confirm">Your launcher asks you to confirm the new widget.</string>
+    <string name="detail_sheet_step_place">Drop it where you like. Long-press it later to change its design.</string>
+    <string name="detail_sheet_add">Add widget</string>
     <string name="detail_pin_requested_title">Check your home screen</string>
     <string name="detail_pin_requested_body">Confirm the \"Add widget\" prompt, then place the widget where you like.</string>
     <string name="detail_pin_manual_title">Add it from your home screen</string>
     <string name="detail_pin_manual_body">Your launcher can\'t add widgets from apps. Long-press an empty spot on your home screen, tap Widgets, find 100Widgets and drag this size onto the screen. Then pick this design.</string>
 
-    <string name="wallpapers_subtitle">Theme wallpapers are built in. More will arrive online.</string>
     <string name="wallpapers_set_title">Set %1$s as</string>
+    <string name="wallpapers_preview_hint">Tap a wallpaper to preview it</string>
+    <string name="wallpapers_applying">Setting wallpaper…</string>
     <string name="wallpapers_target_home">Home screen</string>
     <string name="wallpapers_target_lock">Lock screen</string>
     <string name="wallpapers_target_both">Both</string>

@@ -4,8 +4,61 @@
     <string name="wd_noir_condensed_clock">Condensed clock</string>
     <string name="wd_noir_battery">Battery</string>
     <string name="wd_bauhaus_white_disc">Analog on white disc</string>
-    <string name="wd_comic_calendar_page">Calendar page</string>
 
+    <!-- Comic -->
+    <string name="wd_comic_calendar_page">Calendar page</string>
+    <string name="wd_comic_masthead">The Daily Issue</string>
+    <string name="wd_comic_city_panel">City at night</string>
+    <string name="wd_comic_sound_effect">Sound effect</string>
+    <string name="wd_comic_bubble_clock">Speech bubble clock</string>
+    <string name="wd_comic_battery">Battery</string>
+    <string name="wd_comic_to_be_continued">To be continued</string>
+    <string name="wd_comic_search">Search</string>
+
+    <string name="wd_comic_masthead_text">THE DAILY ISSUE</string>
+    <string name="wd_comic_issue_no">No.</string>
+    <!-- TextClock patterns: quoted words stay as text, the rest is the time. -->
+    <string name="wd_comic_meanwhile_12" translatable="false">\'Meanwhile, at\' h:mm a\'…\'</string>
+    <string name="wd_comic_meanwhile_24" translatable="false">\'Meanwhile, at\' HH:mm\'…\'</string>
+    <string name="wd_comic_power">POWER</string>
+    <string name="wd_comic_tbc">To be continued…</string>
+    <string name="wd_comic_weekend">It\'s the weekend!</string>
+    <plurals name="wd_comic_days_to_saturday">
+        <item quantity="one">%1$d day to Saturday</item>
+        <item quantity="other">%1$d days to Saturday</item>
+    </plurals>
+    <string name="wd_comic_search_hint">SEARCH THE WEB…</string>
+    <string name="wd_comic_go">GO!</string>
+    <string-array name="wd_comic_sound_words">
+        <item>BANG!</item>
+        <item>POW!</item>
+        <item>ZAP!</item>
+        <item>BAM!</item>
+        <item>WHAM!</item>
+    </string-array>
+
+    <!-- Paper -->
+    <string name="wd_paper_analog">Analog clock</string>
+    <string name="wd_paper_volume">Volume</string>
+    <string name="wd_paper_battery">Battery</string>
+    <string name="wd_paper_compass">Compass</string>
+    <string name="wd_paper_battery_label">BATTERY</string>
+    <string name="wd_paper_charging">CHARGING…</string>
+
+    <!-- Signal -->
+    <string name="wd_signal_analog">Analog clock</string>
+    <string name="wd_signal_torch">Torch</string>
+    <string name="wd_signal_dot_clock">Dot clock</string>
+    <string name="wd_signal_date">Today\'s date</string>
+    <string name="wd_signal_location">Location</string>
+    <string name="wd_signal_compass">Compass</string>
+    <string name="wd_signal_torch_label">Torch</string>
+
+    <!-- Shared -->
     <string name="wd_battery_label">Battery</string>
     <string name="wd_battery_charging">Charging</string>
+    <string name="wd_compass_n">N</string>
+    <string name="wd_compass_e">E</string>
+    <string name="wd_compass_s">S</string>
+    <string name="wd_compass_w">W</string>
 </resources>

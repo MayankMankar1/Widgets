@@ -2,13 +2,13 @@ package com.hundredwidgets.app.ui.components
 
 import android.widget.FrameLayout
 import android.widget.RemoteViews
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
+import com.hundredwidgets.app.ui.motion.Motion
+import com.hundredwidgets.app.ui.motion.shimmer
 import com.hundredwidgets.core.model.CellSize
 import com.hundredwidgets.core.model.ClockFormat
 import com.hundredwidgets.core.model.DeviceSnapshot
@@ -71,6 +73,12 @@ fun WidgetPreview(
         }.getOrNull()
     }
 
+    val revealed by animateFloatAsState(
+        targetValue = if (views != null) 1f else 0f,
+        animationSpec = tween(Motion.MEDIUM, easing = Motion.EmphasizedDecelerate),
+        label = "previewReveal",
+    )
+
     Box(
         modifier = modifier.size(size.width * scale, size.height * scale),
         contentAlignment = Alignment.Center,
@@ -80,7 +88,7 @@ fun WidgetPreview(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(24.dp)),
+                    .shimmer(RoundedCornerShape(24.dp)),
             )
         } else {
             AndroidView(
@@ -92,8 +100,10 @@ fun WidgetPreview(
                 modifier = Modifier
                     .requiredSize(size.width, size.height)
                     .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
+                        val grow = 0.94f + 0.06f * revealed
+                        scaleX = scale * grow
+                        scaleY = scale * grow
+                        alpha = revealed
                     },
             )
         }

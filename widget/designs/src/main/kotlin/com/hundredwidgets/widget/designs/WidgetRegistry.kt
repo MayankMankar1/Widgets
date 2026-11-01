@@ -7,11 +7,13 @@ import com.hundredwidgets.widget.designs.bauhaus.bauhausDesigns
 import com.hundredwidgets.widget.designs.comic.comicDesigns
 import com.hundredwidgets.widget.designs.horizon.horizonDesigns
 import com.hundredwidgets.widget.designs.noir.noirDesigns
+import com.hundredwidgets.widget.designs.signal.signalDesigns
+import com.hundredwidgets.widget.designs.paper.paperDesigns
 
 /** Every design in the app. Adding a design never needs a new manifest receiver. */
 object WidgetRegistry {
 
-    val all: List<WidgetDesign> = horizonDesigns + noirDesigns + bauhausDesigns + comicDesigns
+    val all: List<WidgetDesign> = horizonDesigns + noirDesigns + paperDesigns + signalDesigns + bauhausDesigns + comicDesigns
 
     private val byId: Map<DesignId, WidgetDesign> = all.associateBy { it.id }
 

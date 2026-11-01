@@ -18,17 +18,15 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.hundredwidgets.core.model.BatterySnap
 import com.hundredwidgets.widget.designs.R
 import com.hundredwidgets.widget.designs.WidgetRenderContext
-
-private val SampleBattery = BatterySnap(level = 78, isCharging = false)
+import com.hundredwidgets.widget.designs.common.batteryOrSample
 
 /** Canvas N2 "Battery": label, large percentage and a level bar on black. */
 @Composable
 internal fun NoirBattery(ctx: WidgetRenderContext) {
     val context = LocalContext.current
-    val battery = ctx.snapshot.battery ?: SampleBattery.takeIf { ctx.isPreview }
+    val battery = ctx.batteryOrSample()
     val label = when {
         battery == null -> context.getString(R.string.wd_battery_label)
         battery.isCharging -> context.getString(R.string.wd_battery_charging)

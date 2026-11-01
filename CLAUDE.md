@@ -6,16 +6,16 @@ Guidance for Claude Code working in this repository. `README.md` is the full blu
 
 100Widgets is a native Android app (Kotlin, Jetpack Compose for the app, Jetpack Glance for widgets) that offers themed home-screen widgets and wallpapers. The visual spec for every widget is the HTML/CSS design canvas linked in README §3; widgets are rebuilt natively from it, never embedded as HTML.
 
-**Status:** early development. The foundation and 5 starter designs build and pass `test` and `lint` (README §2, "What exists in code today"), but have **not run on a phone yet**. The next job is to install on a real phone and check each design on a launcher.
+**Status:** early development. 22 designs across 6 themes build, pass `test` and `lint`, and run on a real phone (README §2, "What exists in code today"). Next: the designs that need new storage or settings, and launcher checks on Pixel, Samsung and Xiaomi.
 
 ## Working agreement
 
 - **Discuss the plan before any commit.** Propose the approach, wait for the user's OK, and ask before every `git commit` or push.
 - v1 scope (README §2):
-  - 4 themes: Horizon, Noir, Bauhaus, Comic. **Paper and Signal are deferred.**
+  - 6 themes: Horizon, Noir, Paper, Signal, Bauhaus, Comic. **Paper and Signal ship only designs that need no special permission.**
   - **No weather.** No weather API, key or location-for-weather.
   - **Free, no ads.** Pro and ads may come later.
-- Don't build designs marked *Later*, or Paper/Signal designs, unless the user asks.
+- Don't build designs marked *Later*, or Paper/Signal permission designs, unless the user asks.
 - When something on the canvas can't work on Android, say so and propose an *Adapt* option (README §5 has the pattern). Don't silently drop or fake it.
 
 ## Commands
@@ -61,7 +61,8 @@ Versions live only in `gradle/libs.versions.toml`.
   - Never `androidx.compose.foundation`, `material3` or `ui.Modifier`/layout in widget modules: they compile but don't work in RemoteViews.
 - **Clocks:**
   - Use `GlanceTextClock` / `GlanceAnalogClock`. The launcher ticks them.
-  - A font change means a new XML layout plus a `ClockFont` entry; RemoteViews can't change a TextClock's font.
+  - Theme fonts come from `WidgetFont` (`GlanceTextClock` for live time, `GlanceStyledText` for static text); Glance's own `Text` only has system fonts. A new font means a TTF in `res/font/` plus its three layouts and a `WidgetFont` entry.
+  - Never put an `AndroidRemoteViews` straight into a Column or Row: it breaks the parent's layout. Use the boxed helpers above.
   - **Never** schedule per-minute or per-second updates. Never use exact alarms.
   - Never add a foreground service for live faces unless the user decides to (README §20).
 - **Widgets never touch the network.** They read Room + the `DeviceSnapshot` only. Images are bundled or pre-downloaded by the app.
@@ -120,6 +121,7 @@ Versions live only in `gradle/libs.versions.toml`.
   - app wallpapers are `wp_<theme>`
 - **Strings:** all user-facing text in `strings.xml` (localisation comes later). No hardcoded UI strings.
 - **Comments:** short KDoc on classes explaining *why*; avoid restating code.
+- **App UX and motion:** follow `docs/ux-guide.md`. Durations, easings and springs come only from `app/ui/motion/Motion.kt`; use `pressable`, `enterOnce`, `shimmer` and `sharedHero` rather than one-off animations, and respect `LocalReducedMotion`.
 - **Dependencies:** don't add one without saying why.
 
 ## Adding a widget design (checklist)

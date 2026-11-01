@@ -3,8 +3,8 @@
     android:id="@+id/wd_text_clock"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:fontFamily="sans-serif-condensed"
+    android:fontFamily="@font/wd_comic_neue_regular"
     android:includeFontPadding="false"
     android:maxLines="1"
-    android:textColor="@android:color/white"
-    android:textStyle="bold" />
+    android:textAllCaps="true"
+    android:textColor="@android:color/white" />

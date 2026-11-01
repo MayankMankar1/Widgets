@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -18,8 +19,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -29,6 +33,7 @@ import com.hundredwidgets.app.BuildConfig
 import com.hundredwidgets.app.R
 import com.hundredwidgets.app.ui.components.ScreenTitle
 import com.hundredwidgets.app.ui.components.SectionCard
+import com.hundredwidgets.app.ui.motion.enterOnce
 import com.hundredwidgets.core.data.REFRESH_INTERVAL_OPTIONS
 import com.hundredwidgets.core.model.ClockFormat
 
@@ -37,6 +42,8 @@ import com.hundredwidgets.core.model.ClockFormat
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val clockFormat by viewModel.clockFormat.collectAsStateWithLifecycle()
     val refreshInterval by viewModel.refreshIntervalMinutes.collectAsStateWithLifecycle()
+    val haptics = LocalHapticFeedback.current
+    val seen = remember { mutableSetOf<Any>() }
 
     Column(
         modifier = Modifier
@@ -46,18 +53,21 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     ) {
         ScreenTitle(text = stringResource(R.string.tab_settings))
 
-        SectionCard {
+        SectionCard(Modifier.enterOnce(index = 0, key = "clock", seen = seen)) {
             Text(stringResource(R.string.settings_clock_format), style = MaterialTheme.typography.titleSmall)
             ClockFormat.entries.forEach { format ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(min = 48.dp)
                         .selectable(
                             selected = format == clockFormat,
-                            onClick = { viewModel.setClockFormat(format) },
+                            onClick = {
+                                if (format != clockFormat) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                viewModel.setClockFormat(format)
+                            },
                             role = Role.RadioButton,
-                        )
-                        .padding(vertical = 4.dp),
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = format == clockFormat, onClick = null)
@@ -66,7 +76,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         }
 
-        SectionCard {
+        SectionCard(Modifier.enterOnce(index = 1, key = "refresh", seen = seen)) {
             Text(stringResource(R.string.settings_refresh), style = MaterialTheme.typography.titleSmall)
             Text(
                 stringResource(R.string.settings_refresh_body),
@@ -78,14 +88,17 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                 REFRESH_INTERVAL_OPTIONS.forEach { minutes ->
                     FilterChip(
                         selected = minutes == refreshInterval,
-                        onClick = { viewModel.setRefreshIntervalMinutes(minutes) },
+                        onClick = {
+                            if (minutes != refreshInterval) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                            viewModel.setRefreshIntervalMinutes(minutes)
+                        },
                         label = { Text(stringResource(R.string.settings_minutes, minutes)) },
                     )
                 }
             }
         }
 
-        SectionCard {
+        SectionCard(Modifier.enterOnce(index = 2, key = "battery", seen = seen)) {
             Text(stringResource(R.string.settings_battery_title), style = MaterialTheme.typography.titleSmall)
             Text(
                 stringResource(R.string.settings_battery_body),
@@ -94,7 +107,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             )
         }
 
-        SectionCard(Modifier.padding(bottom = 24.dp)) {
+        SectionCard(
+            Modifier
+                .padding(bottom = 24.dp)
+                .enterOnce(index = 3, key = "about", seen = seen),
+        ) {
             Text(stringResource(R.string.settings_about), style = MaterialTheme.typography.titleSmall)
             Text(
                 stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),

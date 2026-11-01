@@ -15,6 +15,8 @@ data class ThemeInfo(
 private val themeInfos = listOf(
     ThemeInfo(Theme.HORIZON, R.drawable.wp_horizon, R.string.theme_horizon_tagline),
     ThemeInfo(Theme.NOIR, R.drawable.wp_noir, R.string.theme_noir_tagline),
+    ThemeInfo(Theme.PAPER, R.drawable.wp_paper, R.string.theme_paper_tagline),
+    ThemeInfo(Theme.SIGNAL, R.drawable.wp_signal, R.string.theme_signal_tagline),
     ThemeInfo(Theme.BAUHAUS, R.drawable.wp_bauhaus, R.string.theme_bauhaus_tagline),
     ThemeInfo(Theme.COMIC, R.drawable.wp_comic, R.string.theme_comic_tagline),
 )

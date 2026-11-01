@@ -2,7 +2,7 @@
 
 A themed home-screen widget and wallpaper app for Android. Users pick a theme, set its matching wallpaper, and drop its widgets onto the home screen.
 
-> **Status: early development.** The foundation and 5 starter designs **build and pass unit tests and lint** (first build 2026-10-25) but have **not been run on a phone yet**. See [What exists in code today](#what-exists-in-code-today). The rest of this README describes the target design. Update it whenever a decision changes or code lands. Last updated: 2026-10-25.
+> **Status: early development.** 22 designs across 6 themes **build, pass unit tests and lint, and run on a real phone** (Nothing A142P, Android 15, checked 2026-11-01). See [What exists in code today](#what-exists-in-code-today). The rest of this README describes the target design. Update it whenever a decision changes or code lands. Last updated: 2026-11-01.
 
 ---
 
@@ -50,7 +50,7 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 
 | Topic | Decision | Notes |
 |---|---|---|
-| Themes at launch | **4 themes**: Horizon, Noir, Bauhaus, Comic | **Paper and Signal are deferred.** Most of their widgets are system switches Android blocks (power, screen record, mic, location) or need special-access permissions (usage access, modify system settings). Skipping them keeps v1's permission list short for Play review. Their inventory stays in [section 5](#5-themes-and-widget-inventory) for later. |
+| Themes at launch | **6 themes**: Horizon, Noir, Paper, Signal, Bauhaus, Comic | **Paper and Signal ship only their designs that need no special permission** (decided 2026-11-01). Their permission designs (brightness, DND, screen time, steps, coordinates) stay out of v1 to keep the permission list short for Play review. |
 | Weather | **Not in v1** | Every weather widget is marked *Later*. Bauhaus faces that show a temperature show battery % instead until weather ships. No weather API, no API key, no location for weather. |
 | Money | **Free** at launch, no ads | Pro version and/or ads may come later. The code keeps a `Tier` flag on every design and an `EntitlementRepository` so adding them later is not a refactor ([section 15](#15-monetization)). |
 | Backend | **No server** | Static files on Cloudflare R2 (wallpapers) + Firebase (crash reports, analytics, remote config). |
@@ -64,9 +64,9 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 |---|---|---|
 | Build | 7 Gradle modules, version catalog (`gradle/libs.versions.toml`, October 2026 stable versions), Gradle wrapper, Hilt, KSP, Room schema export. `assembleDebug`, `test` and `lint` pass (lint's only warning: targetSdk 36 is not the newest, see §20) | `build-logic/` convention plugins, CI, a run on a real phone |
 | Widget engine | `HundredWidget` (one GlanceAppWidget for all sizes), 6 size receivers + widget info XML, `WidgetPinner` + `PinResultReceiver`, `WidgetUpdater` (refresh by data source, reconcile), error and "tap to choose" layouts | Responsive sizes (uses `SizeMode.Single`), generated picker previews |
-| Designs (5) | `horizon.clock_quote`, `noir.condensed_clock`, `noir.battery`, `bauhaus.white_disc`, `comic.calendar_page` | The other ~52 v1 designs, bundled theme fonts (system fonts stand in) |
+| Designs (22) | Horizon 1, Noir 2, Paper 4, Signal 6, Bauhaus 1, Comic 8 (rows marked **built** in §5); real theme fonts; pre-rendered Comic art | About 50 more v1 designs. Next batch needs new storage or a settings screen: to-dos, mood, water, countdown, time zone, alarm, daily strip, signal strength, battery saver. A midnight `DATE` refresh job (date-derived text updates on the next widget redraw today) |
 | Data | Room `widget_instances` + `favorites`, settings DataStore, `DeviceSnapshot` store, battery collector, `RefreshWorker`, `WidgetRefreshCoordinator` | Calendar, steps, alarm and DND collectors; to-do/habit/mood tables |
-| App | Four tabs (Home with scenes, Widgets catalogue with live previews, Wallpapers with 4 bundled theme wallpapers, Settings), design detail with "Add to home screen", design chooser (`ConfigureActivity`) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
+| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 4 bundled theme wallpapers and a full-screen preview, Settings), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`, rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
 | Tests | `InstanceConfigTest`, `WidgetRegistryTest`, `EngineContractTest` (10 tests, all passing) | Glance, Room migration, screenshot tests |
 
 ---
@@ -114,7 +114,7 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 | Paper (deferred) | Geist |
 | Signal (deferred) | Doto, Space Mono, Instrument Serif |
 
-None are bundled yet; the starter designs use Android system fonts until Phase 0 confirms bundled fonts render in TextClock on real launchers.
+All of these are bundled in `widget/designs/src/main/res/font/` as fixed-weight, Latin-only cuts (776 KB in total), with their licences in `assets/licenses/fonts-OFL.txt`. Widgets use them through `WidgetFont` (TextClock and TextView layouts per font). Confirmed rendering on the Nothing launcher; Pixel, Samsung and Xiaomi still to check.
 
 ---
 
@@ -190,7 +190,7 @@ Each row is one **design** (a widget the user can add). IDs are permanent becaus
 
 Board codes: H1 = Horizon board 1 (canvas `Main.dc.html`), H2 = `Horizon-2`, N1 = `Noir-1`, and so on.
 
-v1 themes are Horizon, Noir, Bauhaus and Comic. The Paper and Signal tables are kept below, marked deferred, for when those themes return. Designs marked **built** exist in code today.
+v1 themes are Horizon, Noir, Paper, Signal, Bauhaus and Comic. Paper and Signal ship only their designs that need no permission. Designs marked **built** exist in code today.
 
 ### Horizon: frosted glass · Inter · wallpaper `hz-wall`
 
@@ -236,46 +236,46 @@ v1 themes are Horizon, Noir, Bauhaus and Comic. The Paper and Signal tables are 
 | `noir.activity` | Activity (kcal, stand, minutes) | 2×1 | N3 | Later | Needs Health Connect. Could become steps-only |
 | `noir.vinyl` | Vinyl player | 2×2 | N3 | Later | Media |
 
-### Paper (deferred): ink & colour · Geist · wallpaper `pa-wall`
+### Paper: ink & colour · Geist · wallpaper `pa-wall`
 
 | ID | Widget | Size | Board | Status | Notes |
 |---|---|---|---|---|---|
-| `paper.analog` | Analog clock | 2×2 | P1 | Ready | |
+| `paper.analog` | Analog clock | 2×2 | P1 | Ready | (**built**) |
 | `paper.brightness` | Brightness slider | 1×2 | P1 | Permission | "Modify system settings". Tap cycles levels |
 | `paper.dnd` | Do not disturb | 1×1 | P1 | Permission | DND access |
 | `paper.signal` | Signal strength | 1×1 | P1 | Adapt | Refreshed periodically, not live |
 | `paper.weather` | Weather + forecast | 4×2 | P1 | Later | Weather |
-| `paper.volume` | Volume slider | 1×2 | P1 | Ready | Tap cycles media volume |
+| `paper.volume` | Volume slider | 1×2 | P1 | Ready | Tap cycles media volume (**built**) |
 | `paper.ringer` | Ringer | 1×1 | P1 | Permission | Silent needs DND access. Vibrate/normal don't |
 | `paper.screen_record` | Screen record | 1×1 | P1 | Later | No public way to start the system recorder; would need our own recorder |
-| `paper.battery` | Battery | 2×2 | P1 | Ready | |
+| `paper.battery` | Battery | 2×2 | P1 | Ready | (**built**) |
 | `paper.power` | Power switch | 2×1 | P1 | Later | Apps can't power the phone off. Only an accessibility service can open the power menu, which Play restricts |
 | `paper.sleep` | Sleep mode | 2×1 | P1 | Adapt | Toggles Do not disturb (Permission: DND access) |
 | `paper.schedule` | Today's schedule | 4×2 | P2 | Permission | Calendar |
-| `paper.compass` | Compass | 2×2 | P2 | Adapt | Widgets can't show a live compass. Decorative dial, tap rotates it |
+| `paper.compass` | Compass | 2×2 | P2 | Adapt | Widgets can't show a live compass. Decorative dial, tap rotates it (**built**) |
 | `paper.now_playing` | Now playing | 2×3 | P2 | Later | Media (also the only 2×3 design) |
 | `paper.recorder` | Recorder | 2×1 | P2 | Later | Needs an in-app recorder |
 | `paper.todo` | Today's to-do list | 2×2 | P2 | Ready | `todo_items` |
 | `paper.water` | Water intake | 2×2 | P2 | Ready | Tap adds 250 ml, resets daily (`daily_counters`) |
 
-### Signal (deferred): dots & red · Doto, Space Mono, Instrument Serif · wallpaper `sg-wall`
+### Signal: dots & red · Doto, Space Mono, Instrument Serif · wallpaper `sg-wall`
 
 | ID | Widget | Size | Board | Status | Notes |
 |---|---|---|---|---|---|
 | `signal.steps` | Steps + streak | 2×2 | S1 | Permission | Activity recognition |
-| `signal.analog` | Analog clock | 2×2 | S1 | Ready | |
+| `signal.analog` | Analog clock | 2×2 | S1 | Ready | (**built**) |
 | `signal.screen_time` | Screen time today | 2×2 | S1 | Permission | Usage access |
 | `signal.app_limit` | App limit exceeded | 2×2 | S1 | Permission | Usage access. Limits set in the app (`app_limits`) |
-| `signal.torch` | Torch | 2×1 | S1 | Ready | |
+| `signal.torch` | Torch | 2×1 | S1 | Ready | (**built**) |
 | `signal.recorder` | Recorder | 2×2 | S1 | Later | Needs an in-app recorder |
 | `signal.dnd` | Do not disturb | 2×1 | S1 | Permission | DND access |
 | `signal.weather` | Weather + 5 days | 4×2 | S2 | Later | Weather |
-| `signal.dot_clock` | Dot clock | 1×2 | S2 | Ready | Doto dot-matrix font (verify in the font spike) |
-| `signal.date` | Today's date | 2×2 | S2 | Ready | |
+| `signal.dot_clock` | Dot clock | 1×2 | S2 | Ready | Doto dot-matrix font (verify in the font spike) (**built**) |
+| `signal.date` | Today's date | 2×2 | S2 | Ready | (**built**) |
 | `signal.auto_rotate` | Auto rotate | 1×1 | S2 | Permission | "Modify system settings" |
-| `signal.location` | Location toggle | 1×1 | S2 | Adapt | Apps can't toggle location. Opens location settings |
+| `signal.location` | Location toggle | 1×1 | S2 | Adapt | Apps can't toggle location. Opens location settings (**built**) |
 | `signal.time_zone` | Day + time zone | 2×2 | S2 | Ready | TextClock with a user-picked time zone |
-| `signal.compass` | Compass | 2×2 | S2 | Adapt | Same as `paper.compass` |
+| `signal.compass` | Compass | 2×2 | S2 | Adapt | Same as `paper.compass` (**built**) |
 | `signal.countdown` | Next flight → Countdown | 4×2 | S3 | Adapt | No flight data source. Becomes a countdown to an event the user enters |
 | `signal.mic` | Microphone access | 2×2 | S3 | Later | No API to toggle the mic. At most a privacy-settings shortcut |
 | `signal.battery_mode` | Battery mode | 2×2 | S3 | Adapt | Shows Battery Saver on/off, tap opens battery settings |
@@ -309,14 +309,14 @@ Tilted stickers, halftone dots and starbursts are pre-rendered images. Only text
 
 | ID | Widget | Size | Board | Status | Notes |
 |---|---|---|---|---|---|
-| `comic.masthead` | The Daily Issue | 4×1 | C1 | Ready | Issue number = day of year, redrawn at midnight |
-| `comic.city_panel` | City at night | 2×2 | C1 | Ready | `cm-city` tile, "Meanwhile, at …" caption via TextClock |
-| `comic.sound_effect` | Sound effect | 2×2 | C1 | Ready | Tap for the next word; the 5 words are pre-rendered |
-| `comic.bubble_clock` | Speech bubble clock | 2×2 | C1 | Ready | TextClock in the bubble, date sticker redrawn at midnight |
+| `comic.masthead` | The Daily Issue | 4×1 | C1 | Ready | Issue number = day of year, redrawn at midnight (**built**) |
+| `comic.city_panel` | City at night | 2×2 | C1 | Ready | `cm-city` tile, "Meanwhile, at …" caption via TextClock (**built**) |
+| `comic.sound_effect` | Sound effect | 2×2 | C1 | Ready | Tap for the next word; the 5 words are pre-rendered (**built**) |
+| `comic.bubble_clock` | Speech bubble clock | 2×2 | C1 | Ready | TextClock in the bubble, date sticker redrawn at midnight (**built**) |
 | `comic.calendar_page` | Calendar page | 2×2 | C1 | Ready | Month, day and weekday are TextClocks (**built**, condensed system font until Bangers is bundled) |
 | `comic.weather` | Weather | 2×1 | C1 | Later | Weather |
-| `comic.battery` | Battery | 2×1 | C1 | Ready | |
-| `comic.to_be_continued` | To be continued | 2×1 | C1 | Ready | Days to Saturday, redrawn at midnight |
+| `comic.battery` | Battery | 2×1 | C1 | Ready | (**built**) |
+| `comic.to_be_continued` | To be continued | 2×1 | C1 | Ready | Days to Saturday, redrawn at midnight (**built**) |
 | `comic.alarm` | Alarm | 1×1 | C1 | Adapt | Same as `noir.alarm` |
 | `comic.daily_strip` | Daily strip | 4×2 | C2 | Ready | "NOW!" moves between the 7 AM / 1 PM / 9 PM panels at time-of-day boundaries |
 | `comic.todo_bubble` | To-do thought bubble | 2×2 | C2 | Ready | `todo_items` |
@@ -324,8 +324,7 @@ Tilted stickers, halftone dots and starbursts are pre-rendered images. Only text
 | `comic.mixtape` | Mixtape | 2×1 | C2 | Later | Media |
 | `comic.steps` | Steps today | 2×1 | C2 | Permission | Activity recognition |
 | `comic.mood` | Mood picker | 4×1 | C2 | Ready | `mood_log` |
-| `comic.search` | Search | 4×1 | C2 | Ready | Same as `noir.search` |
-
+| `comic.search` | Search | 4×1 | C2 | Ready | Same as `noir.search` (**built**) |
 ### Theme extras: app tiles
 
 Each board also has small themed app icons. They become one **App tile** design per theme (`horizon.app_tile`, `noir.app_tile`, `bauhaus.app_tile`, `comic.app_tile`): 1×1, the user picks the app and the theme draws the icon. Status: Ready.
@@ -340,6 +339,8 @@ Each board also has small themed app icons. They become one **App tile** design 
 | Comic | 16 | 11 | 1 | 1 | 3 | **13** |
 | App tiles | 4 | 4 | 0 | 0 | 0 | **4** |
 | **Total** | **70** | 41 | 4 | 12 | 13 | **57** |
+| Paper (permission-free) | 17 | 5 | — | 2 | — | **7** |
+| Signal (permission-free) | 19 | 5 | — | 4 | — | **9** |
 
 **Path to 100+:** Paper (+12) and Signal (+15) once their permissions are worth it, weather designs (+8), media designs (+5), plus new designs in updates.
 
@@ -1153,8 +1154,8 @@ Android Studio stays the full IDE (Compose previews, debugger). VS Code is a lig
 
 **Phase 0: Spike (decide the unknowns before building 70+ designs)**
 - [x] Project with 6 size receivers and 5 starter designs: `horizon.clock_quote` (glass + TextClock), `noir.condensed_clock` (condensed font), `noir.battery` (battery data), `bauhaus.white_disc` (custom AnalogClock), `comic.calendar_page` (date TextClocks).
-- [ ] Compile and run it on a real phone; fix whatever the first build turns up.
-- [ ] Verify bundled fonts in TextClock on Pixel, Samsung and Xiaomi launchers.
+- [x] Compile and run it on a real phone; fix whatever the first build turns up (clock text in Columns/Rows needed a Box wrapper).
+- [ ] Verify bundled fonts in TextClock on Pixel, Samsung and Xiaomi launchers (Nothing launcher confirmed).
 - [ ] Verify `requestPinAppWidget` flow + callback on the same phones.
 - [ ] Decide the glass recipe that looks closest to the canvas.
 
@@ -1177,7 +1178,7 @@ Android Studio stays the full IDE (Compose previews, debugger). VS Code is a lig
 
 **After launch**
 - [ ] A theme or wallpaper drop every 2–3 weeks.
-- [ ] Paper and Signal themes.
+- [ ] Paper and Signal permission designs (brightness, DND, screen time, steps, coordinates).
 - [ ] Weather (needs an API decision: Open-Meteo is free only for non-commercial use; a proxy such as a Cloudflare Worker keeps the key out of the app and caches per city).
 - [ ] Media widgets (notification listener).
 - [ ] Pro and/or ads.
@@ -1189,7 +1190,7 @@ Android Studio stays the full IDE (Compose previews, debugger). VS Code is a lig
 | # | Question | Current default |
 |---|---|---|
 | 1 | Application ID / package name | Placeholder `com.hundredwidgets.app`. Needs a domain you own or a unique name |
-| 2 | Which themes are deferred | Paper and Signal |
+| 2 | Paper and Signal permission designs in v1? | No: only their permission-free designs ship |
 | 3 | CDN domain for R2 | Placeholder `cdn.<your-domain>` |
 | 4 | Analytics on by default? | On, with an opt-out in onboarding and settings |
 | 5 | Media widgets (now playing, radio, vinyl) in v1? | No (needs notification access) |

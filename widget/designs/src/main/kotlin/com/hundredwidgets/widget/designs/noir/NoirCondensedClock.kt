@@ -12,7 +12,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.width
 import com.hundredwidgets.widget.designs.R
 import com.hundredwidgets.widget.designs.WidgetRenderContext
-import com.hundredwidgets.widget.designs.common.ClockFont
+import com.hundredwidgets.widget.designs.common.WidgetFont
 import com.hundredwidgets.widget.designs.common.GlanceTextClock
 
 /**
@@ -32,7 +32,7 @@ internal fun NoirCondensedClock(ctx: WidgetRenderContext) {
             pattern12 = "hh",
             pattern24 = "HH",
             clockFormat = ctx.clockFormat,
-            font = ClockFont.CONDENSED_BOLD,
+            font = WidgetFont.ARCHIVO_CONDENSED,
             sizeSp = 72f,
             color = NoirColors.hour,
         )
@@ -41,7 +41,7 @@ internal fun NoirCondensedClock(ctx: WidgetRenderContext) {
             pattern12 = "mm",
             pattern24 = "mm",
             clockFormat = ctx.clockFormat,
-            font = ClockFont.CONDENSED_BOLD,
+            font = WidgetFont.ARCHIVO_CONDENSED,
             sizeSp = 72f,
             color = NoirColors.text,
         )

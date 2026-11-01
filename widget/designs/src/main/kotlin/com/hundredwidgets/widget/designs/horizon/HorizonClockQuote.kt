@@ -16,7 +16,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.hundredwidgets.widget.designs.R
 import com.hundredwidgets.widget.designs.WidgetRenderContext
-import com.hundredwidgets.widget.designs.common.ClockFont
+import com.hundredwidgets.widget.designs.common.WidgetFont
 import com.hundredwidgets.widget.designs.common.GlanceTextClock
 import com.hundredwidgets.widget.designs.common.Quotes
 
@@ -33,7 +33,7 @@ internal fun HorizonClockQuote(ctx: WidgetRenderContext) {
             pattern12 = "EEE, d MMM",
             pattern24 = "EEE, d MMM",
             clockFormat = ctx.clockFormat,
-            font = ClockFont.MEDIUM,
+            font = WidgetFont.INTER_MEDIUM,
             sizeSp = 14f,
             color = HorizonColors.textSoft,
         )
@@ -42,7 +42,7 @@ internal fun HorizonClockQuote(ctx: WidgetRenderContext) {
             pattern12 = "hh:mm",
             pattern24 = "HH:mm",
             clockFormat = ctx.clockFormat,
-            font = ClockFont.LIGHT,
+            font = WidgetFont.INTER_LIGHT,
             sizeSp = 46f,
             color = HorizonColors.text,
         )
