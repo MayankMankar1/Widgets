@@ -122,6 +122,7 @@ Versions live only in `gradle/libs.versions.toml`.
 - **Strings:** all user-facing text in `strings.xml` (localisation comes later). No hardcoded UI strings.
 - **Comments:** short KDoc on classes explaining *why*; avoid restating code.
 - **App UX and motion:** follow `docs/ux-guide.md`. Durations, easings and springs come only from `app/ui/motion/Motion.kt`; use `pressable`, `enterOnce`, `shimmer` and `sharedHero` rather than one-off animations, and respect `LocalReducedMotion`.
+- **App look:** colours only via `MaterialTheme.colorScheme`, and spacing, corners, icon sizes and type from `Spacing`, `Radius`, `IconSize` and `AppTypography` in `app/ui/theme/Theme.kt`. Every screen must work in light and dark (Settings → Appearance). Widgets never follow the app theme.
 - **Dependencies:** don't add one without saying why.
 
 ## Adding a widget design (checklist)

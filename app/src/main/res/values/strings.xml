@@ -58,8 +58,16 @@
     <string name="wallpapers_done">Wallpaper set</string>
     <string name="wallpapers_failed">Couldn\'t set the wallpaper</string>
 
+    <string name="settings_group_appearance">Appearance</string>
+    <string name="settings_group_widgets">Widgets</string>
+    <string name="settings_group_help">Help</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_body">Widgets keep their own theme colours.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_clock_format">Clock format</string>
-    <string name="settings_clock_system">Follow phone setting</string>
+    <string name="settings_clock_system">System</string>
     <string name="settings_clock_12">12-hour</string>
     <string name="settings_clock_24">24-hour</string>
     <string name="settings_refresh">Widget updates</string>

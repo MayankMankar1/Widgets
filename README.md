@@ -66,7 +66,7 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 | Widget engine | `HundredWidget` (one GlanceAppWidget for all sizes), 6 size receivers + widget info XML, `WidgetPinner` + `PinResultReceiver`, `WidgetUpdater` (refresh by data source, reconcile), error and "tap to choose" layouts | Responsive sizes (uses `SizeMode.Single`), generated picker previews |
 | Designs (22) | Horizon 1, Noir 2, Paper 4, Signal 6, Bauhaus 1, Comic 8 (rows marked **built** in §5); real theme fonts; pre-rendered Comic art | About 50 more v1 designs. Next batch needs new storage or a settings screen: to-dos, mood, water, countdown, time zone, alarm, daily strip, signal strength, battery saver. A midnight `DATE` refresh job (date-derived text updates on the next widget redraw today) |
 | Data | Room `widget_instances` + `favorites`, settings DataStore, `DeviceSnapshot` store, battery collector, `RefreshWorker`, `WidgetRefreshCoordinator` | Calendar, steps, alarm and DND collectors; to-do/habit/mood tables |
-| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 4 bundled theme wallpapers and a full-screen preview, Settings), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`, rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
+| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 4 bundled theme wallpapers and a full-screen preview, Settings grouped into Appearance, Widgets, Help and About), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`). Design system (Inter type scale, spacing, radius and colour tokens in `app/ui/theme/Theme.kt`) with Light, Dark and System modes chosen in Settings (rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
 | Tests | `InstanceConfigTest`, `WidgetRegistryTest`, `EngineContractTest` (10 tests, all passing) | Glance, Room migration, screenshot tests |
 
 ---
@@ -114,13 +114,13 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 | Paper (deferred) | Geist |
 | Signal (deferred) | Doto, Space Mono, Instrument Serif |
 
-All of these are bundled in `widget/designs/src/main/res/font/` as fixed-weight, Latin-only cuts (776 KB in total), with their licences in `assets/licenses/fonts-OFL.txt`. Widgets use them through `WidgetFont` (TextClock and TextView layouts per font). Confirmed rendering on the Nothing launcher; Pixel, Samsung and Xiaomi still to check.
+All of these are bundled in `widget/designs/src/main/res/font/` as fixed-weight, Latin-only cuts (776 KB in total), with their licences in `assets/licenses/fonts-OFL.txt`. Widgets use them through `WidgetFont` (TextClock and TextView layouts per font). Confirmed rendering on the Nothing launcher; Pixel, Samsung and Xiaomi still to check. The app's own UI also uses Inter (Regular, Medium, SemiBold, Latin-only, about 170 KB) from `app/src/main/res/font/`, under the same OFL licence file.
 
 ---
 
 ## 4. The app: four sections
 
-Bottom navigation with four tabs: **Home**, **Widgets**, **Wallpapers**, **Settings**. Dark UI. The app's own look should be its own identity, not a copy of the inspiration app.
+Bottom navigation with four tabs: **Home**, **Widgets**, **Wallpapers**, **Settings**. Light and dark modes (Settings → Appearance → Theme, default System); widgets keep their own theme colours in both. The app's own look should be its own identity, not a copy of the inspiration app.
 
 ### Home
 - **Scenes carousel:** one card per theme, showing the full home-screen mockup from the canvas.
@@ -477,7 +477,7 @@ Current Gradle modules:
 │       ├── configure/                # ConfigureActivity: design chooser for one placed widget
 │       ├── wallpaper/                # WallpaperApplier (WallpaperManager)
 │       └── ui/
-│           ├── theme/                # Dark Material 3 theme
+│           ├── theme/                # Material 3 theme: light/dark tokens, Inter type, spacing
 │           ├── components/           # WidgetPreview (real RemoteViews), titles, cards
 │           ├── home/ widgets/ wallpapers/ settings/   # one screen + ViewModel each
 │           └── ThemeInfo.kt          # Theme → bundled wallpaper + tagline
@@ -1195,7 +1195,7 @@ Android Studio stays the full IDE (Compose previews, debugger). VS Code is a lig
 | 4 | Analytics on by default? | On, with an opt-out in onboarding and settings |
 | 5 | Media widgets (now playing, radio, vinyl) in v1? | No (needs notification access) |
 | 6 | Optional "live faces" foreground service? | No (Play `specialUse` review + permanent notification) |
-| 7 | App UI visual identity (accent colour, display font) | Dark UI, to be designed |
+| 7 | App UI visual identity (accent colour, display font) | Decided: minimal flat surfaces, Inter, orange accent `#FF9B43` (`#E5822C` in light), Light/Dark/System setting. Tokens in [`docs/ux-guide.md`](docs/ux-guide.md) §4 |
 | 8 | Play listing name availability ("100Widgets") | To check |
 | 9 | Move targetSdk from 36 to 37? (lint `OldTargetApi`) | 36 for now. Raising it opts into Android 17 behaviour changes, so test on a phone first |
 

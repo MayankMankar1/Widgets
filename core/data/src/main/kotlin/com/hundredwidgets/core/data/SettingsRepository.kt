@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.hundredwidgets.core.model.AppTheme
 import com.hundredwidgets.core.model.ClockFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,10 +17,13 @@ val REFRESH_INTERVAL_OPTIONS = listOf(15, 30, 60)
 interface SettingsRepository {
     val clockFormat: Flow<ClockFormat>
     val refreshIntervalMinutes: Flow<Int>
+    val appTheme: Flow<AppTheme>
 
     suspend fun setClockFormat(format: ClockFormat)
 
     suspend fun setRefreshIntervalMinutes(minutes: Int)
+
+    suspend fun setAppTheme(theme: AppTheme)
 }
 
 internal class DataStoreSettingsRepository @Inject constructor(
@@ -35,6 +39,10 @@ internal class DataStoreSettingsRepository @Inject constructor(
         p[REFRESH_INTERVAL] ?: DEFAULT_REFRESH_MINUTES
     }
 
+    override val appTheme: Flow<AppTheme> = prefs.data.map { p ->
+        p[APP_THEME]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } } ?: AppTheme.SYSTEM
+    }
+
     override suspend fun setClockFormat(format: ClockFormat) {
         prefs.edit { it[CLOCK_FORMAT] = format.name }
     }
@@ -44,8 +52,13 @@ internal class DataStoreSettingsRepository @Inject constructor(
         prefs.edit { it[REFRESH_INTERVAL] = minutes.coerceIn(15, 60) }
     }
 
+    override suspend fun setAppTheme(theme: AppTheme) {
+        prefs.edit { it[APP_THEME] = theme.name }
+    }
+
     private companion object {
         val CLOCK_FORMAT = stringPreferencesKey("clock_format")
         val REFRESH_INTERVAL = intPreferencesKey("refresh_interval_min")
+        val APP_THEME = stringPreferencesKey("app_theme")
     }
 }

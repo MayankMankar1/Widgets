@@ -5,7 +5,7 @@ and update it in the same change when a decision changes. Structure follows
 [MockFlow's UX documentation guide](https://mockflow.com/blog/UX-documentation-for-mobile-app-design);
 motion references come from [60fps.design](https://60fps.design) (see the end).
 
-Last updated: 2026-11-01.
+Last updated: 2026-11-02.
 
 ---
 
@@ -34,7 +34,7 @@ Bottom tabs
 │        └─ your widgets ─────► Design detail
 ├── Widgets ── theme chips, design cards ─► Design detail ─► Add sheet
 ├── Wallpapers ── grid ─► Full-screen preview (in place)
-└── Settings ── clock format, refresh interval, battery help, about
+└── Settings ── Appearance (theme) · Widgets (clock format, updates) · Help · About
 Separate activity: design chooser (opened by the launcher)
 ```
 
@@ -42,38 +42,84 @@ Pages opened from a tab keep that tab highlighted in the bottom bar.
 
 ## 4. Style guide
 
-### Colour (dark only; widgets and wallpapers are the brightest things on screen)
+Direction: calm and precise (Linear, Nothing OS, Apple, Raycast). Flat surfaces separated by
+tone, not by shadows or borders. No gradients (except the dark scrim that keeps text readable on
+wallpapers), no glass, no neon. Widgets and wallpapers are the most colourful things on screen.
+All tokens live in `app/ui/theme/Theme.kt`.
 
-| Token | Hex | Use |
-|---|---|---|
-| Background / surface | `#0E0F12` | Screen background |
-| Surface container | `#17181C` | Cards, sheets |
-| Surface high | `#212228` | Chips, step numbers, raised fills |
-| Accent (primary) | `#FF9F45` | Primary buttons, selected states, success marks |
-| On accent | `#2B1600` | Text and icons on the accent |
-| Text | `#F2F1EC` | Primary text |
-| Text muted | `#A6A7AD` | Secondary text, metadata |
-| Outline | `#3A3B42` | Borders, inactive dots, shimmer highlight |
+### Colour
 
-System bars are transparent with **light** icons in every phone mode.
+The app follows **Settings → Appearance → Theme** (System, Light, Dark; default System, stored by
+`SettingsRepository.appTheme`). Widgets never follow it: they keep their design theme's colours.
+Switching cross-fades every colour over `LONG` with `Emphasized`; the system bar icons flip with it.
+
+| Token (`colorScheme`) | Dark | Light | Use |
+|---|---|---|---|
+| `background` / `surface` | `#0B0B0D` | `#F7F7F5` | Screen background |
+| `surfaceContainer` | `#17171A` | `#FFFFFF` | Cards, rows, sheets, bottom bar |
+| `surfaceContainerHigh` | `#202024` | `#EEEEEB` | Segmented track, icon tiles, raised fills |
+| `primary` (accent) | `#FF9B43` | `#E5822C` | Primary buttons, selected icon, success marks |
+| `onPrimary` | `#241100` | `#FFFFFF` | Text and icons on the accent |
+| `primaryContainer` | `#3A2614` | `#FFE6CF` | Selected chip, nav indicator |
+| `onSurface` | `#F5F5F5` | `#111113` | Primary text |
+| `onSurfaceVariant` | `#929299` | `#6B6B73` | Secondary text, metadata, unselected icons |
+| `outline` | `#2E2E33` | `#DCDCD8` | Chip borders, inactive dots, shimmer highlight |
+
+Use colours only through `MaterialTheme.colorScheme`; never a hex value in a screen. Text on a
+wallpaper is always white on the dark scrim, in both modes.
+
+Launch never flashes the wrong palette: `values/` and `values-night/` set the window background
+to the light and dark `background`.
 
 ### Type
-Material 3 type scale with the system font. Screen titles `headlineMedium`, card titles
-`titleMedium`, metadata `bodySmall` in muted text. Theme fonts belong to widgets, not to the app.
 
-### Shape and spacing
-- Corners: 32 dp hero images and scene cards, 28 dp design cards, 24 dp tiles and sheets' inner images, 12 dp section cards.
-- Spacing on a 4 dp grid: 16 dp screen padding, 12–16 dp between cards, 8 dp between chips.
+Inter (Regular, Medium, SemiBold; Latin-only cuts in `app/src/main/res/font/`), via `AppTypography`.
+Large sizes get slightly negative tracking.
+
+| Style | Size / line | Weight | Use |
+|---|---|---|---|
+| `displaySmall` | 34 / 40 | SemiBold | Rare, big numbers |
+| `headlineLarge` | 30 / 36 | SemiBold | Screen titles (`ScreenTitle`) |
+| `headlineSmall` | 22 / 28 | SemiBold | Scene card names, detail titles |
+| `titleMedium` | 16 / 22 | SemiBold | Card titles |
+| `titleSmall` | 14 / 20 | SemiBold | Row and setting titles |
+| `bodyMedium` | 14 / 20 | Regular | Body text |
+| `bodySmall` | 13 / 18 | Regular | Metadata, setting descriptions (muted) |
+| `labelLarge` / `labelMedium` / `labelSmall` | 14 / 12 / 11 | Medium | Buttons, tab labels, group labels |
+
+Theme fonts belong to widgets, not to the app.
+
+### Spacing, radius and icon size
+
+| `Spacing` | dp | | `Radius` | dp | | `IconSize` | dp |
+|---|---|---|---|---|---|---|---|
+| `xs` | 4 | | `hero` | 28 | | `sm` | 18 |
+| `sm` | 8 | | `card` | 24 | | `md` | 22 |
+| `md` | 12 | | `tile` | 20 | | `lg` | 24 |
+| `lg` | 16 | | `row` | 16 | | | |
+| `xl` | 20 | | `chip` | 12 | | | |
+| `xxl` | 24 | | | | | | |
+| `section` | 32 | | | | | | |
+| `screen` | 20 | | | | | | |
+
+- `hero`: scene cards and full-bleed images. `card`: design cards, section cards, settings groups. `tile`: wallpaper tiles. `row`: list rows. `chip`: chips, segmented controls, small thumbnails.
+- 16 dp horizontal screen padding for lists, 20 dp for titles; 24 dp between settings groups.
 - Touch targets at least 48 dp; primary buttons 56 dp tall and full width.
 
 ### Components (in `app/ui/components` and `app/ui/motion`)
 | Component | Rule |
 |---|---|
+| `ScreenTitle` | Every tab starts with one; optional muted subtitle |
+| `SectionCard` | Flat `surfaceContainer` card, `Radius.card`, no elevation |
 | `DesignBackdrop` | Every design is shown on its theme's wallpaper, never on a flat card |
 | `WidgetPreview` | The real widget render; shimmer while it draws, then fades and grows in |
-| Scene card | Pager card, 400 dp tall, wallpaper with a dark gradient for text |
+| Scene card | Pager card, 400 dp tall, wallpaper with a dark scrim for text |
+| Placed widget row | Wallpaper thumbnail, title, theme · size, chevron |
+| `SettingsGroup` / `SettingsItem` | Uppercase muted label above a card; each item has a 36 dp icon tile, title, optional description and control |
+| `SegmentedControl` | For 2–4 mutually exclusive options (theme, clock format, interval); a pill slides to the choice. Prefer it over radio lists |
 | Bottom sheet | For multi-step actions (add widget); never an alert dialog |
-| Filter chips | Selected chip shows a check and grows to fit it |
+| Filter chips | `Radius.chip`; selected chip uses `primaryContainer`, shows a check and grows to fit it |
+| Bottom bar | `surfaceContainer`, no tonal elevation; selected icon in the accent on a `primaryContainer` pill |
 
 ## 5. Motion
 
@@ -92,17 +138,20 @@ All values live in `app/ui/motion/Motion.kt`. Never hard-code a duration or spri
 | `bouncy()` | spring, medium bounce | Press feedback, toggles, success marks |
 
 **Patterns**
-- **Tabs:** fade-through: out in 150 ms, then in with a 0.96 → 1 zoom.
+- **Tabs:** the old screen fades out (`SHORT`) while sliding 1/12 of the width away; the new one fades in and slides in from the side you're moving to (`MEDIUM`, decelerate). Moving right slides left, and vice versa.
+- **Bottom bar:** the indicator pill animates in, and the selected icon scales to 1.08 (`gentle`) and takes the accent.
 - **Card → detail:** the wallpaper backdrop and the title morph (shared element); the rest fades.
 - **Thumbnail → wallpaper preview:** the image grows to full screen (shared element).
 - **Press:** cards shrink to 0.96 and spring back (`Modifier.pressable`).
 - **Lists:** items fade and rise 24 dp, staggered, only the first time (`Modifier.enterOnce`); filter changes animate placement (`animateItem`).
-- **Carousel:** off-centre cards scale to 0.88 and dim to 55 %; wallpapers drift at 25 % speed (parallax).
+- **Carousel:** snaps with the pager's spring; off-centre cards scale to 0.92 and dim to 60 %. No parallax.
+- **Segmented control:** the pill slides with `gentle`; label colours cross-fade.
+- **Theme switch:** all colours cross-fade over `LONG` (`Emphasized`).
 - **Loading:** shimmer, never a spinner, for content that is being drawn.
 - **Success:** a check mark springs in (`bouncy`), plus a confirm haptic.
 
 **Reduced motion:** when the phone's "Remove animations" setting is on (`LocalReducedMotion`),
-skip morphs, parallax, staggering, shimmer sweeps and press scaling. State changes still happen
+skip morphs, tab slides, staggering, shimmer sweeps, icon scaling and press scaling. State changes still happen
 instantly.
 
 ## 6. Interaction and feedback
@@ -129,7 +178,7 @@ instantly.
 
 ## 8. Checking a change
 
-1. Run it on the emulator: every screen, both entry and back.
+1. Run it on a phone or the emulator: every screen, both entry and back, in **Light and Dark**.
 2. Turn on Developer options → "Remove animations" and repeat: nothing breaks, nothing waits.
 3. `./gradlew test lint` with no new errors.
 4. Before a release, check on a real phone (Nothing, Samsung, Pixel, Xiaomi launchers).

@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,6 +39,7 @@ import com.hundredwidgets.app.ui.components.WidgetPreview
 import com.hundredwidgets.app.ui.theme.HundredWidgetsTheme
 import com.hundredwidgets.core.data.SettingsRepository
 import com.hundredwidgets.core.data.WidgetInstanceRepository
+import com.hundredwidgets.core.model.AppTheme
 import com.hundredwidgets.core.model.CellSize
 import com.hundredwidgets.core.model.ClockFormat
 import com.hundredwidgets.widget.designs.WidgetDesign
@@ -82,7 +84,13 @@ class ConfigureActivity : ComponentActivity() {
         }
 
         setContent {
-            HundredWidgetsTheme {
+            val theme by settings.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM)
+            val dark = when (theme) {
+                AppTheme.SYSTEM -> isSystemInDarkTheme()
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+            }
+            HundredWidgetsTheme(darkTheme = dark) {
                 val clockFormat by settings.clockFormat.collectAsStateWithLifecycle(ClockFormat.SYSTEM)
                 ConfigureScreen(
                     size = size,

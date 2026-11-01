@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -53,6 +54,7 @@ import com.hundredwidgets.app.ui.motion.Motion
 import com.hundredwidgets.app.ui.motion.enterOnce
 import com.hundredwidgets.app.ui.motion.pressable
 import com.hundredwidgets.app.ui.motion.sharedHero
+import com.hundredwidgets.app.ui.theme.Radius
 import com.hundredwidgets.core.model.ClockFormat
 import com.hundredwidgets.core.model.DesignId
 import com.hundredwidgets.core.model.Theme
@@ -153,6 +155,19 @@ private fun ThemeChip(label: String, selected: Boolean, onClick: () -> Unit) {
         } else {
             null
         },
+        shape = RoundedCornerShape(Radius.chip),
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
+            borderColor = MaterialTheme.colorScheme.outline,
+            selectedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
         modifier = Modifier.animateContentSize(Motion.gentle()),
     )
 }
@@ -164,7 +179,7 @@ private fun DesignCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(28.dp)
+    val shape = RoundedCornerShape(Radius.card)
     val title = stringResource(design.title)
     Surface(
         shape = shape,

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hundredwidgets.core.data.DEFAULT_REFRESH_MINUTES
 import com.hundredwidgets.core.data.SettingsRepository
+import com.hundredwidgets.core.model.AppTheme
 import com.hundredwidgets.core.model.ClockFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,13 @@ class SettingsViewModel @Inject constructor(
 
     val refreshIntervalMinutes: StateFlow<Int> = settings.refreshIntervalMinutes
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DEFAULT_REFRESH_MINUTES)
+
+    val appTheme: StateFlow<AppTheme> = settings.appTheme
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppTheme.SYSTEM)
+
+    fun setAppTheme(theme: AppTheme) {
+        viewModelScope.launch { settings.setAppTheme(theme) }
+    }
 
     fun setClockFormat(format: ClockFormat) {
         viewModelScope.launch { settings.setClockFormat(format) }

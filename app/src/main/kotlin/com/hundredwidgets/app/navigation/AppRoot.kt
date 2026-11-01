@@ -9,12 +9,15 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +28,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -66,7 +72,7 @@ private val tabs = listOf(
 )
 
 /**
- * Tabs swap with a quick fade-through (out, then in with a slight zoom). The design detail
+ * Tabs swap with a fade and a short slide in the direction of travel. The design detail
  * page fades in while its wallpaper backdrop and title morph from the tapped card.
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -85,17 +91,41 @@ fun AppRoot() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                tonalElevation = 0.dp,
+            ) {
                 tabs.forEachIndexed { index, tab ->
                     val selected = index == selectedTab
+                    val iconScale by animateFloatAsState(
+                        targetValue = if (selected && !reduced) 1.08f else 1f,
+                        animationSpec = Motion.gentle(),
+                        label = "tabIcon",
+                    )
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
                             if (!selected) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
                             navController.navigateToTab(tab.route)
                         },
-                        icon = { Icon(painterResource(tab.icon), contentDescription = null) },
-                        label = { Text(stringResource(tab.label)) },
+                        icon = {
+                            Icon(
+                                painterResource(tab.icon),
+                                contentDescription = null,
+                                modifier = Modifier.graphicsLayer {
+                                    scaleX = iconScale
+                                    scaleY = iconScale
+                                },
+                            )
+                        },
+                        label = { Text(stringResource(tab.label), style = MaterialTheme.typography.labelMedium) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
                     )
                 }
             }
@@ -107,10 +137,18 @@ fun AppRoot() {
                     navController = navController,
                     startDestination = HomeRoute,
                     modifier = Modifier.padding(padding),
-                    enterTransition = { if (reduced) EnterTransition.None else fadeThroughIn() },
-                    exitTransition = { if (reduced) ExitTransition.None else fadeThroughOut() },
-                    popEnterTransition = { if (reduced) EnterTransition.None else fadeThroughIn() },
-                    popExitTransition = { if (reduced) ExitTransition.None else fadeThroughOut() },
+                    enterTransition = {
+                        if (reduced) EnterTransition.None else tabEnter(direction(initialState, targetState))
+                    },
+                    exitTransition = {
+                        if (reduced) ExitTransition.None else tabExit(direction(initialState, targetState))
+                    },
+                    popEnterTransition = {
+                        if (reduced) EnterTransition.None else tabEnter(direction(initialState, targetState))
+                    },
+                    popExitTransition = {
+                        if (reduced) ExitTransition.None else tabExit(direction(initialState, targetState))
+                    },
                 ) {
                     composable<HomeRoute> {
                         ProvideNavAnimatedScope(this) {
@@ -156,13 +194,21 @@ fun AppRoot() {
     }
 }
 
-private fun fadeThroughIn(): EnterTransition =
-    fadeIn(tween(Motion.MEDIUM, delayMillis = Motion.SHORT / 2, easing = Motion.EmphasizedDecelerate)) +
-        scaleIn(tween(Motion.MEDIUM, delayMillis = Motion.SHORT / 2, easing = Motion.EmphasizedDecelerate), initialScale = 0.96f)
+/** +1 when moving to a tab on the right, -1 to the left, 0 otherwise (detail pages fade only). */
+private fun direction(from: NavBackStackEntry, to: NavBackStackEntry): Int {
+    val a = tabs.indexOfFirst { from.destination.isInHierarchy(it.routeClass) }
+    val b = tabs.indexOfFirst { to.destination.isInHierarchy(it.routeClass) }
+    return if (a < 0 || b < 0 || a == b) 0 else if (b > a) 1 else -1
+}
 
-private fun fadeThroughOut(): ExitTransition =
+/** Tabs: a fade with a short slide (about 1/12 of the width) in the direction of travel. */
+private fun tabEnter(direction: Int): EnterTransition =
+    fadeIn(tween(Motion.MEDIUM, delayMillis = Motion.SHORT / 3, easing = Motion.EmphasizedDecelerate)) +
+        slideInHorizontally(tween(Motion.MEDIUM, easing = Motion.EmphasizedDecelerate)) { it / 12 * direction }
+
+private fun tabExit(direction: Int): ExitTransition =
     fadeOut(tween(Motion.SHORT, easing = Motion.EmphasizedAccelerate)) +
-        scaleOut(tween(Motion.SHORT, easing = Motion.EmphasizedAccelerate), targetScale = 1.02f)
+        slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.EmphasizedAccelerate)) { -it / 12 * direction }
 
 private fun NavDestination?.isInHierarchy(route: KClass<*>): Boolean =
     this?.hierarchy?.any { it.hasRoute(route) } == true

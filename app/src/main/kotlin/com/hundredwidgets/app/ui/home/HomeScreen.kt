@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -22,6 +23,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,10 +52,11 @@ import com.hundredwidgets.app.ui.components.ScreenTitle
 import com.hundredwidgets.app.ui.components.SectionCard
 import com.hundredwidgets.app.ui.components.SectionTitle
 import com.hundredwidgets.app.ui.info
-import com.hundredwidgets.app.ui.motion.LocalReducedMotion
 import com.hundredwidgets.app.ui.motion.Motion
 import com.hundredwidgets.app.ui.motion.enterOnce
 import com.hundredwidgets.app.ui.motion.pressable
+import com.hundredwidgets.app.ui.theme.Radius
+import com.hundredwidgets.app.ui.theme.Spacing
 import com.hundredwidgets.core.model.DesignId
 import com.hundredwidgets.core.model.Theme
 import com.hundredwidgets.widget.designs.WidgetRegistry
@@ -81,7 +84,7 @@ fun HomeScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg),
     ) {
         item {
             ScreenTitle(
@@ -118,21 +121,11 @@ fun HomeScreen(
             }
         } else {
             items(placed, key = { it.appWidgetId }) { widget ->
-                SectionCard(
-                    Modifier
-                        .enterOnce(index = placed.indexOf(widget), key = widget.appWidgetId, seen = seen)
-                        .clip(RoundedCornerShape(12.dp))
-                        .pressable(onClickLabel = stringResource(R.string.action_open)) {
-                            onOpenDesign(widget.design.id)
-                        },
-                ) {
-                    Text(stringResource(widget.design.title), style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        "${widget.design.theme.displayName} · ${widget.design.size.label}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                PlacedWidgetRow(
+                    widget = widget,
+                    onClick = { onOpenDesign(widget.design.id) },
+                    modifier = Modifier.enterOnce(index = placed.indexOf(widget), key = widget.appWidgetId, seen = seen),
+                )
             }
         }
         item {
@@ -150,24 +143,23 @@ fun HomeScreen(
 }
 
 /**
- * One scene per theme. Cards beside the centred one shrink and dim, and the wallpaper drifts
- * slower than the card (parallax), so swiping feels like moving through a stack of scenes.
+ * One scene per theme. Cards beside the centred one shrink slightly and dim, so the active
+ * scene stands out without any decorative motion.
  */
 @Composable
 private fun SceneCard(theme: Theme, pageOffset: () -> Float, onClick: () -> Unit) {
     val designCount = WidgetRegistry.forTheme(theme).size
-    val reduced = LocalReducedMotion.current
-    val shape = RoundedCornerShape(32.dp)
+    val shape = RoundedCornerShape(Radius.hero)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(400.dp)
             .graphicsLayer {
                 val distance = abs(pageOffset()).coerceIn(0f, 1f)
-                val scale = lerp(1f, 0.88f, distance)
+                val scale = lerp(1f, 0.92f, distance)
                 scaleX = scale
                 scaleY = scale
-                alpha = lerp(1f, 0.55f, distance)
+                alpha = lerp(1f, 0.6f, distance)
             }
             .clip(shape)
             .pressable(onClickLabel = stringResource(R.string.action_open), role = Role.Button, onClick = onClick),
@@ -176,15 +168,7 @@ private fun SceneCard(theme: Theme, pageOffset: () -> Float, onClick: () -> Unit
             painter = painterResource(theme.info.wallpaper),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    if (!reduced) {
-                        scaleX = 1.2f
-                        scaleY = 1.2f
-                        translationX = pageOffset() * size.width * 0.25f
-                    }
-                },
+            modifier = Modifier.fillMaxSize(),
         )
         Column(
             modifier = Modifier
@@ -231,5 +215,44 @@ private fun PagerDots(state: PagerState) {
                     .background(color, CircleShape),
             )
         }
+    }
+}
+
+/** A widget already on the home screen: theme thumbnail, name, theme and size, and a chevron. */
+@Composable
+private fun PlacedWidgetRow(widget: PlacedWidget, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(Radius.row)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(horizontal = Spacing.lg)
+            .fillMaxWidth()
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .pressable(onClickLabel = stringResource(R.string.action_open), onClick = onClick)
+            .padding(Spacing.md),
+    ) {
+        Image(
+            painter = painterResource(widget.design.theme.info.wallpaper),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(Radius.chip)),
+        )
+        Spacer(Modifier.width(Spacing.md))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(widget.design.title), style = MaterialTheme.typography.titleSmall)
+            Text(
+                "${widget.design.theme.displayName} · ${widget.design.size.label}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Icon(
+            painterResource(R.drawable.ic_chevron_right),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
