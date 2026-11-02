@@ -66,7 +66,7 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 | Widget engine | `HundredWidget` (one GlanceAppWidget for all sizes), 6 size receivers + widget info XML, `WidgetPinner` + `PinResultReceiver`, `WidgetUpdater` (refresh by data source, reconcile), error and "tap to choose" layouts | Responsive sizes (uses `SizeMode.Single`), generated picker previews |
 | Designs (22) | Horizon 1, Noir 2, Paper 4, Signal 6, Bauhaus 1, Comic 8 (rows marked **built** in §5); real theme fonts; pre-rendered Comic art | About 50 more v1 designs. Next batch needs new storage or a settings screen: to-dos, mood, water, countdown, time zone, alarm, daily strip, signal strength, battery saver. A midnight `DATE` refresh job (date-derived text updates on the next widget redraw today) |
 | Data | Room `widget_instances` + `favorites`, settings DataStore, `DeviceSnapshot` store, battery collector, `RefreshWorker`, `WidgetRefreshCoordinator` | Calendar, steps, alarm and DND collectors; to-do/habit/mood tables |
-| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 4 bundled theme wallpapers and a full-screen preview, Settings grouped into Appearance, Widgets, Help and About), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`). Design system (Inter type scale, spacing, radius and colour tokens in `app/ui/theme/Theme.kt`) with Light, Dark and System modes chosen in Settings (rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
+| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 30 bundled wallpapers in 5 collections (Glass, Landscapes, Clay, Clay Night, Scenes) as sideways-scrolling rows of thumbnails and a full-screen preview, Settings grouped into Appearance, Widgets, Help and About), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`). Design system (Inter type scale, spacing, radius and colour tokens in `app/ui/theme/Theme.kt`) with Light, Dark and System modes chosen in Settings (rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
 | Tests | `InstanceConfigTest`, `WidgetRegistryTest`, `EngineContractTest` (10 tests, all passing) | Glance, Room migration, screenshot tests |
 
 ---
@@ -144,7 +144,7 @@ Bottom navigation with four tabs: **Home**, **Widgets**, **Wallpapers**, **Setti
   - **Add to home screen**
 
 ### Wallpapers
-- Round category chips, then a 2-column grid of thumbnails.
+- One section per collection (name, count, tagline) with a sideways-scrolling row of thumbnails. Rows only load small thumbnails (`wpt_*`); the full image loads in the preview.
 - Full-screen preview with a fake clock overlay, then **Set as: Home / Lock / Both**.
 - Theme wallpapers link to "Widgets that match".
 
@@ -512,7 +512,7 @@ Planned as the app grows:
 - `feature/{home,widgets,wallpapers,settings}` (screens move out of `:app/ui`)
 - `core/designsystem`, `core/network` (wallpaper catalogue), `core/analytics`
 - `build-logic/` convention plugins
-- `tools/wallpaper-pipeline/`
+- `tools/wallpaper-pipeline/` (upload to R2). `tools/wallpapers/` already renders and bundles the starter set
 - bundled fonts in `widget/designs/src/main/res/font/` and photo tiles in `drawable-nodpi/`
 
 ### Key classes
@@ -913,7 +913,7 @@ data class DeviceSnapshot(
 
 | Where | What | Why |
 |---|---|---|
-| **Bundled in the app** | The 5 theme wallpapers + all widget photo tiles | Scenes must work offline on first launch. Widgets can't load URLs |
+| **Bundled in the app** | The 6 theme wallpapers, a starter library (v1: 18 Blender renders + 6 landscapes, about 6 MB with thumbnails) and all widget photo tiles | Scenes must work offline on first launch, and the Wallpapers tab is full without internet. Widgets can't load URLs. Keep the bundled set under about 10 MB |
 | **Online (Cloudflare R2 behind a custom domain)** | Every other wallpaper | New wallpapers without app updates, small APK. R2 has no egress fees (example: 10k users × 20 downloads × 2 MB = 400 GB/month costs roughly $35–50 on typical cloud egress, $0 on R2; the free tier also covers 10 GB of storage) |
 
 ### Bucket layout

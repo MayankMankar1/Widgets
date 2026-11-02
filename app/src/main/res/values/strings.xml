@@ -57,6 +57,23 @@
     <string name="wallpapers_target_both">Both</string>
     <string name="wallpapers_done">Wallpaper set</string>
     <string name="wallpapers_failed">Couldn\'t set the wallpaper</string>
+    <string name="wallpapers_item_title">%1$s %2$d</string>
+    <string name="wallpapers_collection_glass">Glass</string>
+    <string name="wallpapers_collection_glass_tagline">Coloured glass floating in the dark</string>
+    <string name="wallpapers_collection_landscapes">Landscapes</string>
+    <string name="wallpapers_collection_landscapes_tagline">Quiet places, real and imagined</string>
+    <string name="wallpapers_collection_clay">Clay</string>
+    <string name="wallpapers_collection_clay_tagline">Soft shapes in daylight</string>
+    <string name="wallpapers_collection_clay_night">Clay Night</string>
+    <string name="wallpapers_collection_clay_night_tagline">The same shapes under a low evening light</string>
+    <string name="wallpapers_collection_scenes">Scenes</string>
+    <string name="wallpapers_collection_scenes_tagline">Made to match each widget theme</string>
+    <string name="wallpaper_cherry_lake">Cherry blossom lake</string>
+    <string name="wallpaper_floating_castle">Floating castle</string>
+    <string name="wallpaper_autumn_road">Autumn road</string>
+    <string name="wallpaper_moonlit_dunes">Moonlit dunes</string>
+    <string name="wallpaper_concrete_sunset">Concrete sunset</string>
+    <string name="wallpaper_red_valley">Red valley</string>
 
     <string name="settings_group_appearance">Appearance</string>
     <string name="settings_group_widgets">Widgets</string>

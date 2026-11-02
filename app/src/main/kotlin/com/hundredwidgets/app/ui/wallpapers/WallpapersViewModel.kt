@@ -2,10 +2,8 @@ package com.hundredwidgets.app.ui.wallpapers
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hundredwidgets.app.ui.info
 import com.hundredwidgets.app.wallpaper.WallpaperApplier
 import com.hundredwidgets.app.wallpaper.WallpaperTarget
-import com.hundredwidgets.core.model.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,10 +21,10 @@ class WallpapersViewModel @Inject constructor(
     private val _status = MutableStateFlow<WallpaperStatus?>(null)
     val status: StateFlow<WallpaperStatus?> = _status.asStateFlow()
 
-    fun setWallpaper(theme: Theme, target: WallpaperTarget) {
+    fun setWallpaper(wallpaper: Wallpaper, target: WallpaperTarget) {
         viewModelScope.launch {
             _status.value = WallpaperStatus.APPLYING
-            val result = runCatching { applier.setWallpaper(theme.info.wallpaper, target) }
+            val result = runCatching { applier.setWallpaper(wallpaper.image, target) }
             _status.value = if (result.isSuccess) WallpaperStatus.DONE else WallpaperStatus.FAILED
         }
     }

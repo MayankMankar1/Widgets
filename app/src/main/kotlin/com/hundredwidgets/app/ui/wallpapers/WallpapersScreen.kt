@@ -26,9 +26,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,26 +60,28 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hundredwidgets.app.R
 import com.hundredwidgets.app.ui.components.ScreenTitle
-import com.hundredwidgets.app.ui.info
 import com.hundredwidgets.app.ui.motion.LocalReducedMotion
 import com.hundredwidgets.app.ui.motion.Motion
 import com.hundredwidgets.app.ui.motion.enterOnce
 import com.hundredwidgets.app.ui.motion.pressable
+import com.hundredwidgets.app.ui.theme.Radius
+import com.hundredwidgets.app.ui.theme.Spacing
 import com.hundredwidgets.app.wallpaper.WallpaperTarget
-import com.hundredwidgets.core.model.Theme
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * Wallpaper grid. Tapping a thumbnail grows it into a full-screen preview with a sample
- * lock-screen clock, where the user sets it and sees progress and success in place.
+ * Wallpapers by collection: each collection is a row of thumbnails that scrolls sideways. Tapping
+ * one grows it into a full-screen preview with a sample lock-screen clock, where the user sets it
+ * and sees progress and success in place.
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -85,6 +90,9 @@ fun WallpapersScreen(viewModel: WallpapersViewModel = hiltViewModel()) {
     var previewingId by rememberSaveable { mutableStateOf<String?>(null) }
     val haptics = LocalHapticFeedback.current
     val seen = remember { mutableSetOf<Any>() }
+    // Hoisted so closing a preview returns to the same scroll positions.
+    val listState = rememberLazyListState()
+    val rowStates = WallpaperCollection.entries.associateWith { rememberLazyListState() }
 
     BackHandler(enabled = previewingId != null) { previewingId = null }
 
@@ -107,38 +115,40 @@ fun WallpapersScreen(viewModel: WallpapersViewModel = hiltViewModel()) {
 
     SharedTransitionLayout(Modifier.fillMaxSize()) {
         AnimatedContent(
-            targetState = previewingId?.let(Theme::fromId),
+            targetState = previewingId?.let(WallpaperCatalog::find),
             transitionSpec = { fadeIn(tween(Motion.MEDIUM)) togetherWith fadeOut(tween(Motion.MEDIUM)) },
             label = "wallpaperPreview",
-        ) { theme ->
-            if (theme == null) {
-                Column(Modifier.fillMaxSize()) {
-                    ScreenTitle(
-                        text = stringResource(R.string.tab_wallpapers),
-                        subtitle = stringResource(R.string.wallpapers_preview_hint),
-                    )
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        itemsIndexed(Theme.entries, key = { _, it -> it.id }) { index, item ->
-                            WallpaperTile(
-                                theme = item,
-                                onClick = { previewingId = item.id },
-                                modifier = Modifier.enterOnce(index = index, key = item.id, seen = seen),
-                                imageModifier = Modifier.wallpaperHero(item, this@SharedTransitionLayout, this@AnimatedContent),
-                            )
-                        }
+        ) { wallpaper ->
+            if (wallpaper == null) {
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = Spacing.section),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.xxl),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item(key = "title") {
+                        ScreenTitle(
+                            text = stringResource(R.string.tab_wallpapers),
+                            subtitle = stringResource(R.string.wallpapers_preview_hint),
+                        )
+                    }
+                    itemsIndexed(WallpaperCollection.entries, key = { _, it -> it.name }) { index, collection ->
+                        CollectionRow(
+                            collection = collection,
+                            wallpapers = WallpaperCatalog.byCollection[collection].orEmpty(),
+                            rowState = rowStates.getValue(collection),
+                            onOpen = { previewingId = it.id },
+                            heroModifier = { Modifier.wallpaperHero(it, this@SharedTransitionLayout, this@AnimatedContent) },
+                            modifier = Modifier.enterOnce(index = index, key = collection.name, seen = seen),
+                        )
                     }
                 }
             } else {
                 WallpaperPreview(
-                    theme = theme,
+                    wallpaper = wallpaper,
                     status = status,
-                    imageModifier = Modifier.wallpaperHero(theme, this@SharedTransitionLayout, this@AnimatedContent),
-                    onSet = { target -> viewModel.setWallpaper(theme, target) },
+                    imageModifier = Modifier.wallpaperHero(wallpaper, this@SharedTransitionLayout, this@AnimatedContent),
+                    onSet = { target -> viewModel.setWallpaper(wallpaper, target) },
                     onClose = { previewingId = null },
                 )
             }
@@ -149,53 +159,102 @@ fun WallpapersScreen(viewModel: WallpapersViewModel = hiltViewModel()) {
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun Modifier.wallpaperHero(
-    theme: Theme,
+    wallpaper: Wallpaper,
     shared: SharedTransitionScope,
     scope: AnimatedVisibilityScope,
 ): Modifier {
     if (LocalReducedMotion.current) return this
     return with(shared) {
         this@wallpaperHero.sharedElement(
-            sharedContentState = rememberSharedContentState("wallpaper-${theme.id}"),
+            sharedContentState = rememberSharedContentState("wallpaper-${wallpaper.id}"),
             animatedVisibilityScope = scope,
             boundsTransform = { _, _ -> tween(Motion.LONG, easing = Motion.Emphasized) },
         )
     }
 }
 
+/** A collection's name, count and tagline above a sideways-scrolling row of its wallpapers. */
+@Composable
+private fun CollectionRow(
+    collection: WallpaperCollection,
+    wallpapers: List<Wallpaper>,
+    rowState: LazyListState,
+    onOpen: (Wallpaper) -> Unit,
+    heroModifier: @Composable (Wallpaper) -> Modifier,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.padding(horizontal = Spacing.screen),
+        ) {
+            Text(stringResource(collection.title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(Spacing.sm))
+            Text(
+                wallpapers.size.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(
+            stringResource(collection.tagline),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = Spacing.screen, end = Spacing.screen, bottom = Spacing.md),
+        )
+        LazyRow(
+            state = rowState,
+            contentPadding = PaddingValues(horizontal = Spacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            items(wallpapers, key = { it.id }) { wallpaper ->
+                WallpaperTile(
+                    wallpaper = wallpaper,
+                    onClick = { onOpen(wallpaper) },
+                    imageModifier = heroModifier(wallpaper),
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun WallpaperTile(
-    theme: Theme,
+    wallpaper: Wallpaper,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
+    val title = wallpaper.title()
+    Column(modifier.width(128.dp)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(9f / 19.5f)
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(Radius.tile))
                 .pressable(onClickLabel = stringResource(R.string.action_open), onClick = onClick),
         ) {
             Image(
-                painter = painterResource(theme.info.wallpaper),
-                contentDescription = theme.displayName,
+                painter = painterResource(wallpaper.thumb),
+                contentDescription = title,
                 contentScale = ContentScale.Crop,
                 modifier = imageModifier.fillMaxSize(),
             )
         }
         Text(
-            theme.displayName,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(top = 8.dp, start = 4.dp),
+            title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = Spacing.sm, start = Spacing.xs),
         )
     }
 }
 
 @Composable
 private fun WallpaperPreview(
-    theme: Theme,
+    wallpaper: Wallpaper,
     status: WallpaperStatus?,
     onSet: (WallpaperTarget) -> Unit,
     onClose: () -> Unit,
@@ -203,6 +262,7 @@ private fun WallpaperPreview(
     imageModifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val title = wallpaper.title()
     val now = remember { LocalDateTime.now() }
     val time = remember(now) {
         now.format(DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm"))
@@ -216,8 +276,8 @@ private fun WallpaperPreview(
             .clip(RoundedCornerShape(28.dp)),
     ) {
         Image(
-            painter = painterResource(theme.info.wallpaper),
-            contentDescription = theme.displayName,
+            painter = painterResource(wallpaper.image),
+            contentDescription = title,
             contentScale = ContentScale.Crop,
             modifier = imageModifier.fillMaxSize(),
         )
@@ -259,7 +319,7 @@ private fun WallpaperPreview(
                             if (current == WallpaperStatus.FAILED) {
                                 stringResource(R.string.wallpapers_failed)
                             } else {
-                                stringResource(R.string.wallpapers_set_title, theme.displayName)
+                                stringResource(R.string.wallpapers_set_title, title)
                             },
                             color = Color.White,
                             style = MaterialTheme.typography.titleMedium,

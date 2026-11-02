@@ -33,7 +33,7 @@ Bottom tabs
 ├── Home ── scenes carousel ─► Widgets (filtered by theme)
 │        └─ your widgets ─────► Design detail
 ├── Widgets ── theme chips, design cards ─► Design detail ─► Add sheet
-├── Wallpapers ── grid ─► Full-screen preview (in place)
+├── Wallpapers ── collection rows ─► Full-screen preview (in place)
 └── Settings ── Appearance (theme) · Widgets (clock format, updates) · Help · About
 Separate activity: design chooser (opened by the launcher)
 ```

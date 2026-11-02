@@ -118,7 +118,7 @@ Versions live only in `gradle/libs.versions.toml`.
 - **Resource prefixes:**
   - `wd_` in `:widget:designs`, `we_` in `:widget:engine`
   - theme in the name (`wd_bg_horizon_glass`, `wd_bauhaus_disc_hour`)
-  - app wallpapers are `wp_<theme>`
+  - app wallpapers are `wp_<name>` (theme ones `wp_<theme>`), with a `wpt_<name>` thumbnail
 - **Strings:** all user-facing text in `strings.xml` (localisation comes later). No hardcoded UI strings.
 - **Comments:** short KDoc on classes explaining *why*; avoid restating code.
 - **App UX and motion:** follow `docs/ux-guide.md`. Durations, easings and springs come only from `app/ui/motion/Motion.kt`; use `pressable`, `enterOnce`, `shimmer` and `sharedHero` rather than one-off animations, and respect `LocalReducedMotion`.
@@ -142,7 +142,9 @@ Versions live only in `gradle/libs.versions.toml`.
 
 ## Adding wallpapers
 
-- **Today:** bundled theme wallpapers live in `app/src/main/res/drawable-nodpi/wp_<theme>.webp`, mapped in `app/ui/ThemeInfo.kt`.
+- **Today:** bundled wallpapers live in `app/src/main/res/drawable-nodpi/` as `wp_<name>.webp` plus a 400×889 `wpt_<name>.webp` thumbnail, made by `tools/wallpapers/bundle.py` (renders come from `tools/wallpapers/build.py`, see its README). They're listed by collection in `app/ui/wallpapers/WallpaperCatalog.kt`; theme wallpapers are also mapped in `app/ui/ThemeInfo.kt`.
+- Grids and rows show only thumbnails; load the full image only in the preview or when setting it.
+- Keep the bundled set under about 10 MB. Beyond that, wallpapers go online.
 - **Planned:** online wallpapers go through the R2 catalogue and pipeline (README §13), with no app change needed per wallpaper.
 
 ## Secrets and files never to commit
