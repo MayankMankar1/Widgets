@@ -2,7 +2,6 @@ package com.hundredwidgets.app.ui.home
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -48,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hundredwidgets.app.R
+import com.hundredwidgets.app.ui.components.BundledImage
 import com.hundredwidgets.app.ui.components.ScreenTitle
 import com.hundredwidgets.app.ui.components.SectionCard
 import com.hundredwidgets.app.ui.components.SectionTitle
@@ -164,12 +163,7 @@ private fun SceneCard(theme: Theme, pageOffset: () -> Float, onClick: () -> Unit
             .clip(shape)
             .pressable(onClickLabel = stringResource(R.string.action_open), role = Role.Button, onClick = onClick),
     ) {
-        Image(
-            painter = painterResource(theme.info.wallpaper),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
+        BundledImage(res = theme.info.backdrop, contentDescription = null, modifier = Modifier.fillMaxSize())
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -232,10 +226,9 @@ private fun PlacedWidgetRow(widget: PlacedWidget, onClick: () -> Unit, modifier:
             .pressable(onClickLabel = stringResource(R.string.action_open), onClick = onClick)
             .padding(Spacing.md),
     ) {
-        Image(
-            painter = painterResource(widget.design.theme.info.wallpaper),
+        BundledImage(
+            res = widget.design.theme.info.backdrop,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(44.dp)
                 .clip(RoundedCornerShape(Radius.chip)),

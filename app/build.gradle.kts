@@ -33,6 +33,14 @@ android {
                 "proguard-rules.pro",
             )
         }
+        // Release-speed build you can install next to debug, to judge smoothness on a phone
+        // (debug Compose builds are much slower). Signed with the debug key; never uploaded.
+        create("staging") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".staging"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
     }
 
     compileOptions {

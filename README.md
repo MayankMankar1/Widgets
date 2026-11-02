@@ -66,7 +66,7 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 | Widget engine | `HundredWidget` (one GlanceAppWidget for all sizes), 6 size receivers + widget info XML, `WidgetPinner` + `PinResultReceiver`, `WidgetUpdater` (refresh by data source, reconcile), error and "tap to choose" layouts | Responsive sizes (uses `SizeMode.Single`), generated picker previews |
 | Designs (22) | Horizon 1, Noir 2, Paper 4, Signal 6, Bauhaus 1, Comic 8 (rows marked **built** in §5); real theme fonts; pre-rendered Comic art | About 50 more v1 designs. Next batch needs new storage or a settings screen: to-dos, mood, water, countdown, time zone, alarm, daily strip, signal strength, battery saver. A midnight `DATE` refresh job (date-derived text updates on the next widget redraw today) |
 | Data | Room `widget_instances` + `favorites`, settings DataStore, `DeviceSnapshot` store, battery collector, `RefreshWorker`, `WidgetRefreshCoordinator` | Calendar, steps, alarm and DND collectors; to-do/habit/mood tables |
-| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 30 bundled wallpapers in 5 collections (Glass, Landscapes, Clay, Clay Night, Scenes) as sideways-scrolling rows of thumbnails and a full-screen preview, Settings grouped into Appearance, Widgets, Help and About), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`). Design system (Inter type scale, spacing, radius and colour tokens in `app/ui/theme/Theme.kt`) with Light, Dark and System modes chosen in Settings (rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
+| App | Four tabs (Home with a snapping scenes carousel, Widgets catalogue with live previews on wallpaper backdrops, Wallpapers with 25 bundled wallpapers (Glass, Landscapes, Clay, Clay Night and the Comic scene) in one two-column grid and a full-screen preview, Settings grouped into Appearance, Widgets, Help and About), design detail with an add-widget sheet, design chooser (`ConfigureActivity`). Motion system, shared-element transitions, haptics and reduced-motion support (`app/ui/motion`). Design system (Inter type scale, spacing, radius and colour tokens in `app/ui/theme/Theme.kt`) with Light, Dark and System modes chosen in Settings (rules in [`docs/ux-guide.md`](docs/ux-guide.md)) | Apply-scene checklist, online wallpaper catalogue, permissions screens, Firebase |
 | Tests | `InstanceConfigTest`, `WidgetRegistryTest`, `EngineContractTest` (10 tests, all passing) | Glance, Room migration, screenshot tests |
 
 ---
@@ -83,12 +83,12 @@ A themed home-screen widget and wallpaper app for Android. Users pick a theme, s
 
 | File | Pixels | Used for | v1 |
 |---|---|---|---|
-| `hz-wall.jpg` | 824×1784 | Horizon wallpaper | Yes (bundled as `wp_horizon.webp`), re-export at 1440×3200+ |
-| `nr-wall.jpg` | 824×1784 | Noir wallpaper | Yes (`wp_noir.webp`), re-export |
-| `pa-wall.jpg` | 824×1784 | Paper wallpaper | Deferred |
-| `sg-wall.jpg` | 824×1784 | Signal wallpaper | Deferred |
-| `ba-wall.jpg` | 824×1784 | Bauhaus wallpaper | Yes (`wp_bauhaus.webp`), re-export |
-| `cm-wall.jpg` | 824×1784 | Comic wallpaper | Yes (`wp_comic.webp`), re-export |
+| `hz-wall.jpg` | 824×1784 | Horizon wallpaper | Replaced: Horizon is shown on Cherry blossom lake (`wpb_horizon`) |
+| `nr-wall.jpg` | 824×1784 | Noir wallpaper | Replaced: Clay 6 (`wpb_noir`) |
+| `pa-wall.jpg` | 824×1784 | Paper wallpaper | Replaced: Clay 1 (`wpb_paper`) |
+| `sg-wall.jpg` | 824×1784 | Signal wallpaper | Replaced: Glass 3 (`wpb_signal`) |
+| `ba-wall.jpg` | 824×1784 | Bauhaus wallpaper | Replaced: Clay Night 1 (`wpb_bauhaus`) |
+| `cm-wall.jpg` | 824×1784 | Comic wallpaper | Yes (`wp_comic.webp`, backdrop `wpb_comic`), re-export at 1440×3200+ |
 | `hz-peak.jpg` | 640×640 | Horizon "Greeting photo" tile | Yes |
 | `hz-range.jpg` | 960×480 | Horizon "Quote over ridge" tile | Yes |
 | `hz-mist.jpg` | 720×400 | Horizon "Clock over mist" tile | Yes |
@@ -144,7 +144,8 @@ Bottom navigation with four tabs: **Home**, **Widgets**, **Wallpapers**, **Setti
   - **Add to home screen**
 
 ### Wallpapers
-- One section per collection (name, count, tagline) with a sideways-scrolling row of thumbnails. Rows only load small thumbnails (`wpt_*`); the full image loads in the preview.
+- One two-column grid of tall rounded thumbnails, no sections or captions. Collections are interleaved so neighbours differ. The grid loads only thumbnails (`wpt_*`); the full image loads in the preview.
+- Only Comic's theme wallpaper is offered here. The other theme wallpapers stay as scene backdrops on Home and behind widget previews.
 - Full-screen preview with a fake clock overlay, then **Set as: Home / Lock / Both**.
 - Theme wallpapers link to "Widgets that match".
 
@@ -480,7 +481,7 @@ Current Gradle modules:
 │           ├── theme/                # Material 3 theme: light/dark tokens, Inter type, spacing
 │           ├── components/           # WidgetPreview (real RemoteViews), titles, cards
 │           ├── home/ widgets/ wallpapers/ settings/   # one screen + ViewModel each
-│           └── ThemeInfo.kt          # Theme → bundled wallpaper + tagline
+│           └── ThemeInfo.kt          # Theme → backdrop image (wpb_*) + tagline
 ├── core/
 │   ├── model/                        # :core:model (pure Kotlin): Theme, CellSize, DesignId, DataSource,
 │   │                                 #   WidgetInstance, InstanceConfig, DeviceSnapshot, Tier, Entitlement
@@ -1097,6 +1098,7 @@ With these settings a clean `assembleDebug` took about 2½ minutes on a 14 GB la
 ./gradlew lint                     # Android lint
 ./gradlew verifyRoborazziDebug     # screenshot tests
 ./gradlew bundleRelease            # Play Store bundle (needs signing config)
+./gradlew installStaging           # release-speed build signed with the debug key, to judge smoothness
 ```
 
 ### Working in VS Code
@@ -1195,7 +1197,7 @@ Android Studio stays the full IDE (Compose previews, debugger). VS Code is a lig
 | 4 | Analytics on by default? | On, with an opt-out in onboarding and settings |
 | 5 | Media widgets (now playing, radio, vinyl) in v1? | No (needs notification access) |
 | 6 | Optional "live faces" foreground service? | No (Play `specialUse` review + permanent notification) |
-| 7 | App UI visual identity (accent colour, display font) | Decided: minimal flat surfaces, Inter, orange accent `#FF9B43` (`#E5822C` in light), Light/Dark/System setting. Tokens in [`docs/ux-guide.md`](docs/ux-guide.md) §4 |
+| 7 | App UI visual identity (accent colour, display font) | Decided: minimal flat surfaces, Inter, violet accent `#9B8AFB` (`#6D5BF0` in light), floating pill tab bar, Light/Dark/System setting. Tokens in [`docs/ux-guide.md`](docs/ux-guide.md) §4 |
 | 8 | Play listing name availability ("100Widgets") | To check |
 | 9 | Move targetSdk from 36 to 37? (lint `OldTargetApi`) | 36 for now. Raising it opts into Android 17 behaviour changes, so test on a phone first |
 

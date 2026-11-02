@@ -33,7 +33,7 @@ Bottom tabs
 ├── Home ── scenes carousel ─► Widgets (filtered by theme)
 │        └─ your widgets ─────► Design detail
 ├── Widgets ── theme chips, design cards ─► Design detail ─► Add sheet
-├── Wallpapers ── collection rows ─► Full-screen preview (in place)
+├── Wallpapers ── 2-column grid ─► Full-screen preview (in place)
 └── Settings ── Appearance (theme) · Widgets (clock format, updates) · Help · About
 Separate activity: design chooser (opened by the launcher)
 ```
@@ -58,9 +58,10 @@ Switching cross-fades every colour over `LONG` with `Emphasized`; the system bar
 | `background` / `surface` | `#0B0B0D` | `#F7F7F5` | Screen background |
 | `surfaceContainer` | `#17171A` | `#FFFFFF` | Cards, rows, sheets, bottom bar |
 | `surfaceContainerHigh` | `#202024` | `#EEEEEB` | Segmented track, icon tiles, raised fills |
-| `primary` (accent) | `#FF9B43` | `#E5822C` | Primary buttons, selected icon, success marks |
-| `onPrimary` | `#241100` | `#FFFFFF` | Text and icons on the accent |
-| `primaryContainer` | `#3A2614` | `#FFE6CF` | Selected chip, nav indicator |
+| `primary` (accent, violet) | `#9B8AFB` | `#6D5BF0` | Primary buttons, selected states, success marks |
+| `onPrimary` | `#160E3D` | `#FFFFFF` | Text and icons on the accent |
+| `primaryContainer` | `#2A2350` | `#EAE6FF` | Selected chip, selected tab pill |
+| `onPrimaryContainer` | `#D9D2FF` | `#2B1F7A` | Icon and label on the selected tab pill |
 | `onSurface` | `#F5F5F5` | `#111113` | Primary text |
 | `onSurfaceVariant` | `#929299` | `#6B6B73` | Secondary text, metadata, unselected icons |
 | `outline` | `#2E2E33` | `#DCDCD8` | Chip borders, inactive dots, shimmer highlight |
@@ -113,13 +114,14 @@ Theme fonts belong to widgets, not to the app.
 | `SectionCard` | Flat `surfaceContainer` card, `Radius.card`, no elevation |
 | `DesignBackdrop` | Every design is shown on its theme's wallpaper, never on a flat card |
 | `WidgetPreview` | The real widget render; shimmer while it draws, then fades and grows in |
-| Scene card | Pager card, 400 dp tall, wallpaper with a dark scrim for text |
+| Scene card | Pager card, 400 dp tall, the theme's backdrop (`ThemeInfo.backdrop`) with a dark scrim for text |
+| `BundledImage` | Every bundled bitmap in a list or card: decoded once off the main thread, shared, fades in. Never `painterResource` for photos in lists |
 | Placed widget row | Wallpaper thumbnail, title, theme · size, chevron |
 | `SettingsGroup` / `SettingsItem` | Uppercase muted label above a card; each item has a 36 dp icon tile, title, optional description and control |
 | `SegmentedControl` | For 2–4 mutually exclusive options (theme, clock format, interval); a pill slides to the choice. Prefer it over radio lists |
 | Bottom sheet | For multi-step actions (add widget); never an alert dialog |
 | Filter chips | `Radius.chip`; selected chip uses `primaryContainer`, shows a check and grows to fit it |
-| Bottom bar | `surfaceContainer`, no tonal elevation; selected icon in the accent on a `primaryContainer` pill |
+| `TabBar` | Floating pill (`surfaceContainer`, 1 dp `outlineVariant` border) inset 20 dp from the sides. The selected tab is a `primaryContainer` pill with icon and label; the others show only their icon |
 
 ## 5. Motion
 
@@ -138,8 +140,8 @@ All values live in `app/ui/motion/Motion.kt`. Never hard-code a duration or spri
 | `bouncy()` | spring, medium bounce | Press feedback, toggles, success marks |
 
 **Patterns**
-- **Tabs:** the old screen fades out (`SHORT`) while sliding 1/12 of the width away; the new one fades in and slides in from the side you're moving to (`MEDIUM`, decelerate). Moving right slides left, and vice versa.
-- **Bottom bar:** the indicator pill animates in, and the selected icon scales to 1.08 (`gentle`) and takes the accent.
+- **Tabs:** the old screen fades out (`SHORT`); the new one fades in and rises 4 % of its height (about 30 dp) over `LONG` with `EmphasizedDecelerate`. Opening or leaving a detail page only fades.
+- **Tab bar:** the selected pill widens to show its label and the old one shrinks back (`gentle`); colours cross-fade over `MEDIUM`.
 - **Card → detail:** the wallpaper backdrop and the title morph (shared element); the rest fades.
 - **Thumbnail → wallpaper preview:** the image grows to full screen (shared element).
 - **Press:** cards shrink to 0.96 and spring back (`Modifier.pressable`).
@@ -158,7 +160,8 @@ instantly.
 
 | Moment | Feedback |
 |---|---|
-| Switch tab, filter chip, setting, carousel settles | `SegmentTick` haptic |
+| Filter chip, setting, carousel settles | `SegmentTick` haptic |
+| Switch tab | Nothing: the bar's own animation is enough, and a tick on every tab change felt noisy |
 | Favourite on / off | `ToggleOn` / `ToggleOff` haptic, heart pops |
 | Widget add requested, wallpaper set | `Confirm` haptic + check mark |
 | Wallpaper failed | `Reject` haptic + message, buttons stay for retry |

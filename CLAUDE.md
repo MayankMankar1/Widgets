@@ -29,6 +29,7 @@ Run from the repo root. On Windows use `gradlew.bat` (or `./gradlew` from Git Ba
 ./gradlew connectedDebugAndroidTest
 ./gradlew lint
 ./gradlew bundleRelease
+./gradlew installStaging   # release speed, debug key: judge smoothness here, not on debug
 ```
 
 Before saying a change is done, run `./gradlew test lint` for the touched modules. If you can't build (no SDK), say so plainly instead of claiming it works.
@@ -142,8 +143,10 @@ Versions live only in `gradle/libs.versions.toml`.
 
 ## Adding wallpapers
 
-- **Today:** bundled wallpapers live in `app/src/main/res/drawable-nodpi/` as `wp_<name>.webp` plus a 400×889 `wpt_<name>.webp` thumbnail, made by `tools/wallpapers/bundle.py` (renders come from `tools/wallpapers/build.py`, see its README). They're listed by collection in `app/ui/wallpapers/WallpaperCatalog.kt`; theme wallpapers are also mapped in `app/ui/ThemeInfo.kt`.
+- **Today:** bundled wallpapers live in `app/src/main/res/drawable-nodpi/` as `wp_<name>.webp` plus a 540×1200 `wpt_<name>.webp` thumbnail, made by `tools/wallpapers/bundle.py` (renders come from `tools/wallpapers/build.py`, see its README). They're listed in `app/ui/wallpapers/WallpaperCatalog.kt`, which also sets the grid order.
+- Each widget theme is shown on a 900×1350 backdrop `wpb_<theme>.webp` (Home scene cards, widget previews), cut from a wallpaper by `bundle.py` (`BACKDROPS`) and mapped in `app/ui/ThemeInfo.kt`.
 - Grids and rows show only thumbnails; load the full image only in the preview or when setting it.
+- Show bundled bitmaps in lists and cards with `BundledImage` (decoded off the main thread, shared), not `painterResource`.
 - Keep the bundled set under about 10 MB. Beyond that, wallpapers go online.
 - **Planned:** online wallpapers go through the R2 catalogue and pipeline (README §13), with no app change needed per wallpaper.
 
